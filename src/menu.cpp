@@ -1,11 +1,8 @@
 #include <Adafruit_GFX.h>
 
-
-
-
 //摇杆相关变量
-#define pinX  A0
-#define pinY  A1
+#define pinX  35
+#define pinY  34
 
 int valueX = 0;
 int valueY = 0;
@@ -55,220 +52,65 @@ KEY_TABLE table[9] =
 
 void menu00(void)
 {
-  if (menu == 1)//从调时界面退出后将调节后的时间数据写入DS1302
-  {
-    initRTCTime(set_temp);
-    menu = 0;
-  }
-  updatTime();
+
 }
 
 void menu11(void)
 {
-  menu = 1;//进入调时界面
 
-  oled.clearDisplay();//清屏
-  oled.setCursor(15, 2);//设置显示位置
-  oled.println("-Set Dat-");
-  oled.setCursor(2, 25);//设置显示位置
-  oled.println("->1.Dat");
-  oled.setCursor(2, 50);//设置显示位置
-  oled.println("  2.Tim");
-  oled.display(); // 开显示
 }
 
 void menu12(void)
 {
-  oled.clearDisplay();//清屏
-  oled.setCursor(15, 2);//设置显示位置
-  oled.println("-Set Tim-");
-  oled.setCursor(2, 25);//设置显示位置
-  oled.println("  1.Dat");
-  oled.setCursor(2, 50);//设置显示位置
-  oled.println("->2.Tim");
-  oled.display(); // 开显示
+
 }
 
 void menu21(void)
 {
-  set_temp.yr++;
-  oled.clearDisplay();//清屏
-  oled.setCursor(2, 2);//设置显示位置
-  oled.print("->Yer:");
-  oled.println(set_temp.yr);
-  oled.setCursor(2, 25);//设置显示位置
-  oled.print("  Mon: ");
-  oled.println(set_temp.mon);
-  oled.setCursor(2, 48);//设置显示位置
-  oled.print("  Day: ");
-  oled.println(set_temp.date);
-  oled.display(); // 开显示
 
-  if (set_temp.yr >= 2030)
-  {
-    set_temp.yr = 2019;
-  }
 }
 
 void menu22(void)
 {
-  set_temp.mon++;
-  oled.clearDisplay();//清屏
-  oled.setCursor(2, 2);//设置显示位置
-  oled.print("  Yer:");
-  oled.println(set_temp.yr);
-  oled.setCursor(2, 25);//设置显示位置
-  oled.print("->Mon: ");
-  oled.println(set_temp.mon);
-  oled.setCursor(2, 48);//设置显示位置
-  oled.print("  Day: ");
-  oled.println(set_temp.date);
-  oled.display(); // 开显示
 
-  if (set_temp.mon >= 12)
-  {
-    set_temp.mon = 0;
-  }
 }
 
 void menu23(void)
 {
-  set_temp.date++;
-  oled.clearDisplay();//清屏
-  oled.setCursor(2, 2);//设置显示位置
-  oled.print("  Yer:");
-  oled.println(set_temp.yr);
-  oled.setCursor(2, 25);//设置显示位置
-  oled.print("  Mon: ");
-  oled.println(set_temp.mon);
-  oled.setCursor(2, 48);//设置显示位置
-  oled.print("->Day: ");
-  oled.println(set_temp.date);
-  oled.display(); // 开显示
 
-  if (set_temp.date >= 31)
-  {
-    set_temp.date = 0;
-  }
 }
 
 void menu24(void)
 {
-  set_temp.hr++;
-  oled.clearDisplay();//清屏
-  oled.setCursor(2, 2);//设置显示位置
-  oled.print("->Hor: ");
-  oled.println(set_temp.hr);
-  oled.setCursor(2, 25);//设置显示位置
-  oled.print("  Min: ");
-  oled.println(set_temp.min);
-  oled.setCursor(2, 48);//设置显示位置
-  oled.print("  Sec: ");
-  oled.println(set_temp.sec);
-  oled.display(); // 开显示
 
-  if (set_temp.hr >= 24)
-  {
-    set_temp.hr = 0;
-  }
 }
 
 void menu25(void)
 {
-  set_temp.min++;
-  oled.clearDisplay();//清屏
-  oled.setCursor(2, 2);//设置显示位置
-  oled.print("  Hor: ");
-  oled.println(set_temp.hr);
-  oled.setCursor(2, 25);//设置显示位置
-  oled.print("->Min: ");
-  oled.println(set_temp.min);
-  oled.setCursor(2, 48);//设置显示位置
-  oled.print("  Sec: ");
-  oled.println(set_temp.sec);
-  oled.display(); // 开显示
 
-  if (set_temp.min >= 60)
-  {
-    set_temp.min = 0;
-  }
 }
 
 void menu26(void)
 {
-  set_temp.sec++;
-  oled.clearDisplay();//清屏
-  oled.setCursor(2, 2);//设置显示位置
-  oled.print("  Hor: ");
-  oled.println(set_temp.hr);
-  oled.setCursor(2, 25);//设置显示位置
-  oled.print("  Min: ");
-  oled.println(set_temp.min);
-  oled.setCursor(2, 48);//设置显示位置
-  oled.print("->Sec: ");
-  oled.println(set_temp.sec);
-  oled.display(); // 开显示
 
-  if (set_temp.sec >= 60)
-  {
-    set_temp.sec = 0;
-  }
 }
 
 //按键扫描函数
 unsigned char keyScan(void)
 {
-  static unsigned char keyUp = 1;
-
-  valueX = analogRead(pinX);
-  valueY = analogRead(pinY);
-
-  if (keyUp && ((valueX <= 10) || (valueX >= 1010) || (valueY <= 10) || (valueY >= 1010)))
-  {
-    delay(10);
-    keyUp = 0;
-    if (valueX <= 10)return 1;
-    else if (valueX >= 1010)return 2;
-    else if (valueY <= 10)return 3;
-    else if (valueY >= 1010)return 4;
-  } else if ((valueX > 10) && (valueX < 1010) && (valueY > 10) && (valueY < 1010))keyUp = 1;
-  return 0;
+    return 1;
 }
 
 
-void initRTCTime(Time t)//初始化RTC时钟
+void initRTCTime()//初始化RTC时钟
 {
-  rtc.writeProtect(false); //关闭写保护
-  rtc.halt(false); //清除时钟停止标志
-  rtc.time(t);//向DS1302设置时间数据
 }
 
-void show_time(Time tim)
+void show_time()
 {
-  char date[20];
-  char timer[20];
-  snprintf(date, sizeof(date), "%04d-%02d-%02d",
-           tim.yr, tim.mon, tim.date);
-  snprintf(timer, sizeof(timer), "%02d:%02d:%02d",
-           tim.hr, tim.min, tim.sec);
-
-  oled.clearDisplay();//清屏
-  oled.setCursor(15, 2);//设置显示位置
-  oled.println("--CLOCK--");
-  oled.setCursor(4, 25);//设置显示位置
-  oled.println(date);
-  oled.setCursor(18, 50);//设置显示位置
-  oled.println(timer);
-  oled.display(); // 开显示
-
 }
 
 void updatTime()//更新时间数据
 {
-  Time tim = rtc.time(); //从DS1302获取时间数据
-  set_temp = tim;//获取时间数据已备调节
-  if (tim.sec != sec_temp) { //一秒刷新一次
-    show_time(tim);
-  }
-  sec_temp = tim.sec;
+
 }

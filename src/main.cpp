@@ -1,7 +1,5 @@
 #include "main.h"
-
-// For 1.44" and 1.8" TFT with ST7735 use:
-Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
+#include "display.h"
 
 int minute = 50;
 int hour = 9;
@@ -9,19 +7,11 @@ int AN_x = 0;
 int AN_y = 0;
 char times[] = "aaaaa";
 
+
+Display display = Display();
+
 void formatTime(char* , int, int);
 
-// void testlines(uint16_t color);
-// void testdrawtext(char *text, uint16_t color);
-// void testfastlines(uint16_t color1, uint16_t color2);
-// void testdrawrects(uint16_t color);
-// void testfillrects(uint16_t color1, uint16_t color2);
-// void testfillcircles(uint8_t radius, uint16_t color);
-// void testdrawcircles(uint8_t radius, uint16_t color);
-// void testtriangles();
-// void testroundrects();
-// void tftPrintTest();
-// void mediabuttons();
 
 void setup(void) {
   #ifdef DEBUG_CS
@@ -31,36 +21,15 @@ void setup(void) {
     Serial.println(F("Hello! ST77xx TFT Test"));
   #endif
 
-  tft.initR(INITR_GREENTAB);      // Init ST7735S chip, green tab
-  // TODO Need to change the following file: .pio\libdeps\esp32doit-devkit-v1\Adafruit ST7735 and ST7789 Library\Adafruit_ST7735.cpp:223
-  //   _colstart = 0;
-  //   _rowstart = 32;
-
   #ifdef DEBUG_CS
     Serial.println(F("Initialized"));
-  #endif
-
-  // Plot the frame.
-  tft.fillScreen(ST77XX_BLUE);
-  for(int16_t y = 0; y < 4; y++){
-    tft.drawLine(0, y, WIDTH, y, ST77XX_WHITE);
-  }
-  for(int16_t y = 60; y < 64; y++){
-    tft.drawLine(0, y, WIDTH, y, ST77XX_WHITE);
-  }
-  
-  #ifdef DEBUG_CS
     Serial.println("Setup stage done.");
     delay(1000);
   #endif
 }
 
 void loop() {
-  
-  tft.setTextSize(4);
-  tft.setCursor(4, 18);
-  tft.setTextColor(ST77XX_BLUE);
-  tft.print(times);
+  display.print(4, 18, times, ST77XX_BLUE, 4);
 
   // update time.
   if (minute < 59){
@@ -74,23 +43,18 @@ void loop() {
     }
   }
   formatTime(times, hour, minute);
-
-  tft.setCursor(4, 18);
-  tft.setTextColor(ST77XX_ORANGE);
-  tft.print(times);
+  display.print(4, 18, times, ST77XX_ORANGE, 4);
   delay(500);
-  tft.setCursor(52, 18);
-  tft.setTextColor(ST77XX_BLUE);
-  tft.print(':');
+  display.print(52, 18, ":", ST77XX_BLUE, 4);
   delay(500);
 
   AN_x = analogRead(VR_X);
   AN_y = analogRead(VR_Y);
   #ifdef DEBUG_CS
-    Serial.print("X: ");
-    Serial.print(AN_x);
-    Serial.print("; Y: ");
-    Serial.println(AN_y);
+    Serial.print(F("X: "));
+    Serial.print(AN_x >> 5);
+    Serial.print(F("; Y: "));
+    Serial.println(AN_y >> 5);
   #endif
 
 }
