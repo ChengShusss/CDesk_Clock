@@ -5,15 +5,15 @@
 
 class Clock{
 private:
-    Ds1302* rtc;
+    Ds1302 rtc;
     Ds1302::DateTime datatime;
 
 public:
     Clock(void);
-    Clock(int8_t, int8_t, int8_t);
-    Ds1302::DateTime getTime(void);
-    void setTime(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t,uint8_t, uint8_t);
-    bool isHated(void);
+    void getTime(Ds1302::DateTime*);
+    void setTime(uint8_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, uint8_t dow);
+    void setTime(Ds1302::DateTime*);
+    bool isHalted(void);
 };
 
 #endif

@@ -1,6 +1,6 @@
 #include "display.h"
 
-Display::Display(void){
+Display::Display(void):tft(TFT_CS, TFT_DC, TFT_RST){
     this->tft.initR(INITR_GREENTAB);      // Init ST7735S chip, green tab
     // TODO Need to change the following file: .pio\libdeps\esp32doit-devkit-v1\Adafruit ST7735 and ST7789 Library\Adafruit_ST7735.cpp:223
     //   _colstart = 0;

@@ -27,7 +27,7 @@
 class Display{
 public:
     Display(void);
-    void init(void);
+    // void init(void);
 
     void print(int x, int y, char* text);
     void print(int x, int y, char* text, uint16_t color, uint8_t size);
@@ -36,7 +36,7 @@ public:
     void println(int x, int y, char* text, uint16_t color, uint8_t size);
 private:
     // For 1.44" and 1.8" TFT with ST7735 use:
-    Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
+    Adafruit_ST7735 tft;
 };
 
 #endif
