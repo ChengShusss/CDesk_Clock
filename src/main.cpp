@@ -166,12 +166,30 @@
 
 
 #include <Arduino.h>
+#include <Bounce2.h>
 #include "clock.h"
 #include "main.h"
 #include "display.h"
 
+#define PIN_SW 32
+#define DEBOUNCE_TIME 10 //延时用来过滤不正常的信号，
+
 Clock clk = Clock();
 Display display = Display();
+Bounce sw = Bounce();
+
+Ds1302::DateTime now;
+unsigned long time_isr;
+int8_t state = 0;
+int16_t var_x;
+int16_t var_y;
+int rocker_state = 0;
+const static char* Menuitems[] ={
+    "Normal",
+    "Setting",
+    "About",
+    "Time Set",
+};
 
 
 const static char* WeekDays[] =
@@ -185,10 +203,27 @@ const static char* WeekDays[] =
     "Sunday"
 };
 
+// void callBack(void)
+// {
+//     if (millis() - time_isr > 150){
+//         int level = digitalRead(32); //读取GPIO_13上的电平
+//         Serial.printf("触发了中断，当前电平是： %d\n", level);
+//         time_isr = millis();
+//     }
+  
+// }
+
+
 
 void setup()
 {
     Serial.begin(115200);
+
+    sw.attach(PIN_SW, INPUT_PULLUP);
+    sw.interval(DEBOUNCE_TIME);
+
+    // pinMode(32,INPUT_PULLUP);    //GPIO_13,输出模式
+    // attachInterrupt(32, callBack, FALLING);  //当电平发生变化时，触发中断
 
     // test if clock is halted and set a date-time (see example 2) to start it
     if (clk.isHalted())
@@ -197,28 +232,97 @@ void setup()
         Serial.println("RTC is halted. Setting time...");
         clk.setTime(21, 9, 25, 21, 16, 30, 7);
     }
+
+    printTime();
+    printMenu();
 }
 
 
 void loop()
 {
     // get the current time
+    sw.update();
+    switch(scanRocker()){
+        case 1:
+            Serial.println("UP");
+            break;
+        case 2:
+            Serial.println("DOWN");
+            break;
+        case 3:
+            Serial.println("LEFT");
+            break;
+        case 4:
+            Serial.println("RIGHT");
+            break;
+    }
+    if(sw.fell()){
+        Serial.print("Pushed button.");
+        state = (state + 1) % 4;
+        printMenu();
+    }
     printTime();
-    
-    delay(100);
+}
+
+unsigned char scanRocker(void)
+{
+  static unsigned char keyUp = 1;
+
+  var_x = analogRead(35) >> 2;
+  var_y = analogRead(34) >> 2;
+
+  if (keyUp && ((var_x <= 10) || (var_x >= 1010) || (var_y <= 10) || (var_y >= 1010)))
+  {
+    delay(10);
+    keyUp = 0;
+    if (var_x <= 10)return 1;
+    else if (var_x >= 1010)return 2;
+    else if (var_y >= 1010)return 3;
+    else if (var_y <= 10)return 4;
+  } else if ((var_x > 10) && (var_x < 1010) && (var_y > 10) && (var_y < 1010))keyUp = 1;
+  return 0;
+}
+
+
+void printMenu(){
+    display.tft.fillRect(0, 72, 128, 16, ST77XX_BLUE);
+    display.tft.setTextColor(ST77XX_BLACK);
+    display.tft.setCursor(4, 72);
+    display.tft.setTextSize(2);
+    display.tft.print(Menuitems[state]);
 }
 
 
 
 void printTime(void){
-    Ds1302::DateTime now;
+//     display.tft.setTextColor(ST77XX_BLUE);
+//     display.tft.setCursor(4, 18);
+//     display.tft.setTextSize(4);
+//     display.tft.print(now.hour);
+//     display.tft.print(":");
+//     display.tft.print(now.minute);
+    
     clk.getTime(&now);
-    display.print(4, 18, "xx", ST77XX_CYAN, 4);
+    
 
     #ifdef DEBUG_CS    
         static uint8_t last_second = 0;
         if (last_second != now.second)
         {
+            display.tft.fillRect(4, 18, 120, 32, ST77XX_BLUE);
+            display.tft.setTextColor(ST77XX_WHITE);
+            display.tft.setCursor(4, 18);
+            display.tft.setTextSize(4);
+            if(now.hour<10){
+                display.tft.print("0");
+            }
+            display.tft.print(now.hour);
+            display.tft.print(":");
+            if(now.minute<10){
+                display.tft.print("0");
+            }
+            display.tft.print(now.minute);
+
             last_second = now.second;
 
             Serial.print("20");
@@ -241,6 +345,11 @@ void printTime(void){
             if (now.second < 10) Serial.print('0');
             Serial.print(now.second);  // 00-59
             Serial.println();
+
+            Serial.print("Rocker-x:");
+            Serial.print(var_x);
+            Serial.print("  Rocker-y:");
+            Serial.println(var_y);
         }
     #endif
 }

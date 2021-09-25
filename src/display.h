@@ -34,7 +34,7 @@ public:
 
     void println(int x, int y, char* text);
     void println(int x, int y, char* text, uint16_t color, uint8_t size);
-private:
+// private:
     // For 1.44" and 1.8" TFT with ST7735 use:
     Adafruit_ST7735 tft;
 };

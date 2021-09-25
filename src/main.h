@@ -15,8 +15,9 @@ void wifi_Config();
 //用于上电自动连接WiFi
 bool AutoConfig();
 
-
+unsigned char scanRocker(void);
 void printTime(void);
+void printMenu(void);
 
 
 #endif
