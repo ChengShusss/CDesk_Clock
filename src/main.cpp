@@ -1,254 +1,164 @@
-#include "main.h"
-#include "display.h"
+#include <WiFi.h>
+#include <WebServer.h>
+#include <ESPmDNS.h>
+#include <esp_wifi.h>
+# include "main.h"
 
-int minute = 50;
-int hour = 9;
-int AN_x = 0;
-int AN_y = 0;
-char times[] = "aaaaa";
+const char* AP_SSID  = "ESP32_Config"; //热点名称
+String wifi_ssid = "";
+String wifi_pass = "";
+String scanNetworksID = "";//用于储存扫描到的WiFi
 
+#define ROOT_HTML  "<!DOCTYPE html><html><head><title>WIFI Config by lwang</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><style type=\"text/css\">.input{display: block; margin-top: 10px;}.input span{width: 100px; float: left; float: left; height: 36px; line-height: 36px;}.input input{height: 30px;width: 200px;}.btn{width: 120px; height: 35px; background-color: #000000; border:0px; color:#ffffff; margin-top:15px; margin-left:100px;}</style><body><form method=\"GET\" action=\"connect\"><label class=\"input\"><span>WiFi SSID</span><input type=\"text\" name=\"ssid\"></label><label class=\"input\"><span>WiFi PASS</span><input type=\"text\"  name=\"pass\"></label><input class=\"btn\" type=\"submit\" name=\"submit\" value=\"Submie\"> <p><span> Nearby wifi:</P></form>"
+WebServer server(80);
 
-Display display = Display();
+#define RESET_PIN   13  //用于删除WiFi信息
 
-void formatTime(char* , int, int);
+void setup() {
 
+  Serial.begin(115200);
+  pinMode(RESET_PIN, INPUT_PULLUP);
 
-void setup(void) {
-  #ifdef DEBUG_CS
-    Serial.begin(9600);
-    
-    delay(3000);
-    Serial.println(F("Hello! ST77xx TFT Test"));
-  #endif
+  // 连接WiFi
+  if (!AutoConfig())
+  {
+    wifi_Config();
+  }
 
-  #ifdef DEBUG_CS
-    Serial.println(F("Initialized"));
-    Serial.println("Setup stage done.");
+  //用于删除已存WiFi
+  if (digitalRead(RESET_PIN) == LOW) {
     delay(1000);
-  #endif
+    esp_wifi_restore();
+    delay(10);
+    ESP.restart();  //复位esp32
+  }
 }
 
 void loop() {
-  display.print(4, 18, times, ST77XX_BLUE, 4);
+  server.handleClient();
+  while (WiFi.status() == WL_CONNECTED) {
+    //WIFI已连接
 
-  // update time.
-  if (minute < 59){
-    minute++;
-  }else{
-    minute = 0;
-    if (hour < 23){
-      hour++;
-    }else{
-      hour = 0;
-    }
   }
-  formatTime(times, hour, minute);
-  display.print(4, 18, times, ST77XX_ORANGE, 4);
-  delay(500);
-  display.print(52, 18, ":", ST77XX_BLUE, 4);
-  delay(500);
-
-  AN_x = analogRead(VR_X);
-  AN_y = analogRead(VR_Y);
-  #ifdef DEBUG_CS
-    Serial.print(F("X: "));
-    Serial.print(AN_x >> 5);
-    Serial.print(F("; Y: "));
-    Serial.println(AN_y >> 5);
-  #endif
-
 }
 
-// void testlines(uint16_t color) {
-//   tft.fillScreen(ST77XX_BLACK);
-//   for (int16_t x=0; x < tft.width(); x+=6) {
-//     tft.drawLine(0, 0, x, tft.height()-32, color);
-//     delay(0);
-//   }
-//   for (int16_t y=0; y < tft.height() - 32; y+=6) {
-//     tft.drawLine(0, 0, tft.width()-1, y, color);
-//     delay(0);
-//   }
+//用于配置WiFi
+void wifi_Config()
+{
+  Serial.println("scan start");
+  // 扫描附近WiFi
+  int n = WiFi.scanNetworks();
+  Serial.println("scan done");
+  if (n == 0) {
+    Serial.println("no networks found");
+    scanNetworksID = "no networks found";
+  } else {
+    Serial.print(n);
+    Serial.println(" networks found");
+    for (int i = 0; i < n; ++i) {
+      // Print SSID and RSSI for each network found
+      Serial.print(i + 1);
+      Serial.print(": ");
+      Serial.print(WiFi.SSID(i));
+      Serial.print(" (");
+      Serial.print(WiFi.RSSI(i));
+      Serial.print(")");
+      Serial.println((WiFi.encryptionType(i) == WIFI_AUTH_OPEN) ? " " : "*");
+      scanNetworksID += "<P>" + WiFi.SSID(i) + "</P>";
+      delay(10);
+    }
+  }
+  Serial.println("");
 
-//   tft.fillScreen(ST77XX_BLACK);
-//   for (int16_t x=0; x < tft.width(); x+=6) {
-//     tft.drawLine(tft.width()-1, 0, x, tft.height()-32, color);
-//     delay(0);
-//   }
-//   for (int16_t y=0; y < tft.height() - 32; y+=6) {
-//     tft.drawLine(tft.width()-1, 0, 0, y, color);
-//     delay(0);
-//   }
+  WiFi.mode(WIFI_AP);//配置为AP模式
+  boolean result = WiFi.softAP(AP_SSID, ""); //开启WIFI热点
+  if (result)
+  {
+    IPAddress myIP = WiFi.softAPIP();
+    //打印相关信息
+    Serial.println("");
+    Serial.print("Soft-AP IP address = ");
+    Serial.println(myIP);
+    Serial.println(String("MAC address = ")  + WiFi.softAPmacAddress().c_str());
+    Serial.println("waiting ...");
+  } else {  //开启热点失败
+    Serial.println("WiFiAP Failed");
+    delay(3000);
+    ESP.restart();  //复位esp32
+  }
 
-//   tft.fillScreen(ST77XX_BLACK);
-//   for (int16_t x=0; x < tft.width(); x+=6) {
-//     tft.drawLine(0, tft.height()- 32, x, 0, color);
-//     delay(0);
-//   }
-//   for (int16_t y=0; y < tft.height(); y+=6) {
-//     tft.drawLine(0, tft.height()- 32, tft.width()-1, y, color);
-//     delay(0);
-//   }
+  if (MDNS.begin("esp32")) {
+    Serial.println("MDNS responder started");
+  }
 
-//   tft.fillScreen(ST77XX_BLACK);
-//   for (int16_t x=0; x < tft.width(); x+=6) {
-//     tft.drawLine(tft.width()-1, tft.height()- 32, x, 0, color);
-//     delay(0);
-//   }
-//   for (int16_t y=0; y < tft.height()- 32; y+=6) {
-//     tft.drawLine(tft.width()-1, tft.height()- 32, 0, y, color);
-//     delay(0);
-//   }
-// }
+  //首页
+  server.on("/", []() {
+    server.send(200, "text/html", ROOT_HTML + scanNetworksID + "</body></html>");
+  });
 
-// void testdrawtext(char *text, uint16_t color) {
-//   tft.setCursor(0, 0);
-//   tft.setTextColor(color);
-//   tft.setTextWrap(true);
-//   tft.print(text);
-// }
+  //连接
+  server.on("/connect", []() {
 
-// void testfastlines(uint16_t color1, uint16_t color2) {
-//   tft.fillScreen(ST77XX_BLACK);
-//   for (int16_t y=0; y < tft.height()- 32; y+=5) {
-//     tft.drawFastHLine(0, y, tft.width(), color1);
-//   }
-//   for (int16_t x=0; x < tft.width(); x+=5) {
-//     tft.drawFastVLine(x, 0, tft.height()- 32, color2);
-//   }
-// }
+    server.send(200, "text/html", "<html><body><font size=\"10\">successd,wifi connecting...<br />Please close this page manually.</font></body></html>");
 
-// void testdrawrects(uint16_t color) {
-//   tft.fillScreen(ST77XX_BLACK);
-//   for (int16_t x=0; x < tft.width(); x+=6) {
-//     tft.drawRect(tft.width()/2 -x/2, (tft.height()- 32)/2 -x/2 , x, x, color);
-//   }
-// }
+    WiFi.softAPdisconnect(true);
+    //获取输入的WIFI账户和密码
+    wifi_ssid = server.arg("ssid");
+    wifi_pass = server.arg("pass");
+    server.close();
+    WiFi.softAPdisconnect();
+    Serial.println("WiFi Connect SSID:" + wifi_ssid + "  PASS:" + wifi_pass);
 
-// void testfillrects(uint16_t color1, uint16_t color2) {
-//   tft.fillScreen(ST77XX_BLACK);
-//   for (int16_t x=tft.width()-1; x > 6; x-=6) {
-//     tft.fillRect(tft.width()/2 -x/2, (tft.height()- 32)/2 -x/2 , x, x, color1);
-//     tft.drawRect(tft.width()/2 -x/2, (tft.height()- 32)/2 -x/2 , x, x, color2);
-//   }
-// }
+    //设置为STA模式并连接WIFI
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(wifi_ssid.c_str(), wifi_pass.c_str());
+    uint8_t Connect_time = 0; //用于连接计时，如果长时间连接不成功，复位设备
+    while (WiFi.status() != WL_CONNECTED) {  //等待WIFI连接成功
+      delay(500);
+      Serial.print(".");
+      Connect_time ++;
+      if (Connect_time > 80) {  //长时间连接不上，复位设备
+        Serial.println("Connection timeout, check input is correct or try again later!");
+        delay(3000);
+        ESP.restart();
+      }
+    }
+    Serial.println("");
+    Serial.println("WIFI Config Success");
+    Serial.printf("SSID:%s", WiFi.SSID().c_str());
+    Serial.print("  LocalIP:");
+    Serial.print(WiFi.localIP());
+    Serial.println("");
 
-// void testfillcircles(uint8_t radius, uint16_t color) {
-//   for (int16_t x=radius; x < tft.width(); x+=radius*2) {
-//     for (int16_t y=radius; y < (tft.height()- 32); y+=radius*2) {
-//       tft.fillCircle(x, y, radius, color);
-//     }
-//   }
-// }
+  });
+  server.begin();
+}
 
-// void testdrawcircles(uint8_t radius, uint16_t color) {
-//   for (int16_t x=0; x < tft.width()+radius; x+=radius*2) {
-//     for (int16_t y=0; y < (tft.height()- 32)+radius; y+=radius*2) {
-//       tft.drawCircle(x, y, radius, color);
-//     }
-//   }
-// }
-
-// void testtriangles() {
-//   tft.fillScreen(ST77XX_BLACK);
-//   uint16_t color = 0xF800;
-//   int t;
-//   int w = tft.width()/2;
-//   int x = tft.height()-32;
-//   int y = 0;
-//   int z = tft.width();
-//   for(t = 0 ; t <= 15; t++) {
-//     tft.drawTriangle(w, y, y, x, z, x, color);
-//     x-=4;
-//     y+=4;
-//     z-=4;
-//     color+=100;
-//   }
-// }
-
-// void testroundrects() {
-//   tft.fillScreen(ST77XX_BLACK);
-//   uint16_t color = 100;
-//   int i;
-//   int t;
-//   for(t = 0 ; t <= 4; t+=1) {
-//     int x = 0;
-//     int y = 0;
-//     int w = tft.width()-2;
-//     int h = tft.height()-34;
-//     for(i = 0 ; i <= 16; i+=1) {
-//       tft.drawRoundRect(x, y, w, h, 5, color);
-//       x+=2;
-//       y+=3;
-//       w-=4;
-//       h-=6;
-//       color+=1100;
-//     }
-//     color+=100;
-//   }
-// }
-
-// void tftPrintTest() {
-//   tft.setTextWrap(false);
-//   tft.fillScreen(ST77XX_BLACK);
-//   tft.setCursor(0, 0);
-//   tft.setTextColor(ST77XX_RED);
-//   tft.setTextSize(1);
-//   tft.println("Hello World!");
-//   tft.setTextColor(ST77XX_YELLOW);
-//   tft.setTextSize(2);
-//   tft.println("Hello World!");
-//   tft.setTextColor(ST77XX_GREEN);
-//   tft.setTextSize(3);
-//   tft.println("Hello World!");
-//   tft.setTextColor(ST77XX_BLUE);
-//   tft.setTextSize(4);
-//   tft.print(1234.567);
-//   delay(1500);
-//   tft.setCursor(0, 0);
-//   tft.fillScreen(ST77XX_BLACK);
-//   tft.setTextColor(ST77XX_WHITE);
-//   tft.setTextSize(0);
-//   tft.println("Hello World!");
-//   tft.println(" ");
-//   tft.print(8675309, HEX); // print 8,675,309 out in HEX!
-//   tft.println(" Print HEX!");
-//   tft.println(" ");
-//   tft.setTextColor(ST77XX_WHITE);
-//   tft.println("Sketch has been");
-//   tft.println("running for: ");
-//   tft.setTextColor(ST77XX_MAGENTA);
-//   tft.print(millis() / 1000);
-//   tft.setTextColor(ST77XX_WHITE);
-//   tft.print(" seconds.");
-// }
-
-// void mediabuttons() {
-//   // play
-//   tft.fillScreen(ST77XX_BLACK);
-//   tft.fillRoundRect(25, 10, 78, 60, 8, ST77XX_WHITE);
-//   tft.fillTriangle(42, 20, 42, 60, 90, 40, ST77XX_RED);
-//   delay(500);
-//   // pause
-//   tft.fillRoundRect(25, 90, 78, 60, 8, ST77XX_WHITE);
-//   tft.fillRoundRect(39, 98, 20, 45, 5, ST77XX_GREEN);
-//   tft.fillRoundRect(69, 98, 20, 45, 5, ST77XX_GREEN);
-//   delay(500);
-//   // play color
-//   tft.fillTriangle(42, 20, 42, 60, 90, 40, ST77XX_BLUE);
-//   delay(50);
-//   // pause color
-//   tft.fillRoundRect(39, 98, 20, 45, 5, ST77XX_RED);
-//   tft.fillRoundRect(69, 98, 20, 45, 5, ST77XX_RED);
-//   // play color
-//   tft.fillTriangle(42, 20, 42, 60, 90, 40, ST77XX_GREEN);
-// }
-
-
-void formatTime(char formated[], int hour, int minute){
-  formated[0] = (hour % 100 / 10) + '0';
-  formated[1] = (hour % 10) + '0';
-  formated[2] = ':';
-  formated[3] = (minute % 100 / 10) + '0';
-  formated[4] = (minute % 10) + '0';
+//用于上电自动连接WiFi
+bool AutoConfig()
+{
+  WiFi.begin();
+  for (int i = 0; i < 20; i++)
+  {
+    int wstatus = WiFi.status();
+    if (wstatus == WL_CONNECTED)
+    {
+      Serial.println("WIFI SmartConfig Success");
+      Serial.printf("SSID:%s", WiFi.SSID().c_str());
+      Serial.printf(", PSW:%s\r\n", WiFi.psk().c_str());
+      Serial.print("LocalIP:");
+      Serial.print(WiFi.localIP());
+      Serial.print(" ,GateIP:");
+      Serial.println(WiFi.gatewayIP());
+      return true;
+    }
+    else
+    {
+      Serial.print("WIFI AutoConfig Waiting......");
+      Serial.println(wstatus);
+      delay(1000);
+    }
+  }
+  Serial.println("WIFI AutoConfig Faild!" );
+  return false;
 }
