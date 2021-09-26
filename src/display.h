@@ -36,6 +36,7 @@ public:
     void println(int x, int y, char* text, uint16_t color, uint8_t size);
 
     void showInitBar(int Percent);
+    void clean(void);
 // private:
     // For 1.44" and 1.8" TFT with ST7735 use:
     Adafruit_ST7735 tft;

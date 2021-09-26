@@ -224,16 +224,18 @@ const static char* WeekDays[] =
 void setup()
 {
     Serial.begin(115200);
+    display.clean();
 
+    for(unsigned char i = 0; i <= 100; i += 10){
+        display.showInitBar(i);
+        delay(300);
+    }
+    display.clean();
     sw.attach(PIN_SW, INPUT_PULLUP);
     sw.interval(DEBOUNCE_TIME);
 
-    // pinMode(32,INPUT_PULLUP);    //GPIO_13,输出模式
-    // attachInterrupt(32, callBack, FALLING);  //当电平发生变化时，触发中断
-
     // test if clock is halted and set a date-time (see example 2) to start it
     if (clk.isHalted())
-    // if(true)
     {
         Serial.println("RTC is halted. Setting time...");
         clk.setTime(21, 9, 25, 21, 16, 30, 7);
@@ -246,6 +248,7 @@ void setup()
 
 void loop()
 {
+    
     // get the current time
     sw.update();
     rocker_state = scanRocker();
@@ -284,7 +287,7 @@ unsigned char scanRocker(void)
 
 void printMenu(){
     display.tft.fillRect(0, 72, 128, 16, ST77XX_BLUE);
-    display.tft.setTextColor(ST77XX_BLACK);
+    display.tft.setTextColor(ST77XX_ORANGE);
     display.tft.setCursor(4, 72);
     display.tft.setTextSize(2);
     display.tft.print(Menuitems[state]);

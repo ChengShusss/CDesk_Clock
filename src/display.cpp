@@ -48,11 +48,17 @@ void Display::println(int x, int y, char* text, uint16_t color, uint8_t size){
     this->tft.println(text);
 };
 
-void Display::showInitBar(int percent){
+void Display::clean(void){
     this->tft.fillScreen(BACKGROUND);
-    this->tft.drawRoundRect(60, 14, 100, 8, 3, ST77XX_WHITE);
-    this->tft.fillRoundRect(60, 14, percent, 8, 3, ST77XX_WHITE);
-    this->tft.setCursor(27, 72);
+}
+
+void Display::showInitBar(int percent){
+    // clean last
+    
+    this->tft.drawRoundRect(14, 60, 102, 8, 3, ST77XX_WHITE);
+    this->tft.fillRoundRect(14 + percent, 61, 100 - percent, 6, 2, BACKGROUND);
+    this->tft.fillRoundRect(14, 61, percent, 6, 2, ST77XX_WHITE);
+    this->tft.setCursor(14, 72);
     this->tft.setTextColor(ST77XX_WHITE);
     this->tft.setTextSize(1);
     this->tft.print("Powered By Shadow");
