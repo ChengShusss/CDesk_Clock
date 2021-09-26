@@ -69,13 +69,13 @@ void Display::drawTime(Ds1302::DateTime* before, Ds1302::DateTime* now){
 
     // clean before time, avoid flicker.
     this->tft.setTextColor(BACKGROUND);
-    this->tft.setCursor(6, 14);
+    this->tft.setCursor(6, 20);
     castTimeToSting(before, time);
     this->tft.print(time);
     
     // print time at tft
     this->tft.setTextColor(TIME_COLOR);
-    this->tft.setCursor(6, 14);
+    this->tft.setCursor(6, 20);
     castTimeToSting(now, time);
     this->tft.print(time);
     
@@ -89,7 +89,7 @@ void Display::drawTime(Ds1302::DateTime* now){
     this->tft.setTextSize(4);
     // print time at tft
     this->tft.setTextColor(TIME_COLOR);
-    this->tft.setCursor(4, 14);
+    this->tft.setCursor(6, 20);
     castTimeToSting(now, time);
     this->tft.print(time);
 
@@ -101,16 +101,16 @@ void Display::drawFrame(void){
     this->tft.drawLine(0, 1, 128, 1, LINE_COLOR);
     this->tft.drawLine(0, 10, 128, 10, LINE_COLOR);
     this->tft.drawLine(0, 11, 128, 11, LINE_COLOR);
-    this->tft.drawLine(0, 64, 128, 64, LINE_COLOR);
-    this->tft.drawLine(0, 65, 128, 65, LINE_COLOR);
+    this->tft.drawLine(0, 55, 128, 55, LINE_COLOR);
+    this->tft.drawLine(0, 56, 128, 56, LINE_COLOR);
     this->tft.drawLine(0, 126, 128, 126, LINE_COLOR);
     this->tft.drawLine(0, 127, 128, 127, LINE_COLOR);
 
     // draw vertical lines
     this->tft.drawLine(0, 0, 0, 128, LINE_COLOR);
     this->tft.drawLine(1, 0, 1, 128, LINE_COLOR);
-    this->tft.drawLine(96, 65, 96, 128, LINE_COLOR);
-    this->tft.drawLine(97, 65, 97, 128, LINE_COLOR);
+    this->tft.drawLine(96, 55, 96, 128, LINE_COLOR);
+    this->tft.drawLine(97, 55, 97, 128, LINE_COLOR);
     this->tft.drawLine(126, 0, 126, 128, LINE_COLOR);
     this->tft.drawLine(127, 0, 127, 128, LINE_COLOR);
 }
