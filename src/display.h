@@ -43,6 +43,8 @@ public:
     void drawTime(Ds1302::DateTime* now);
 
     void drawFrame(void);
+
+    void drawMenuItem(char ** menuItems, unsigned char n, unsigned char selected);
     
 // private:
     // For 1.44" and 1.8" TFT with ST7735 use:
