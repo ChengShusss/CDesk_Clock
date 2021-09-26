@@ -1,172 +1,8 @@
-// #include <WiFi.h>
-// #include <WebServer.h>
-// #include <ESPmDNS.h>
-// #include <esp_wifi.h>
-// # include "main.h"
-
-// const char* AP_SSID  = "ESP32_Config"; //热点名称
-// String wifi_ssid = "";
-// String wifi_pass = "";
-// String scanNetworksID = "";//用于储存扫描到的WiFi
-
-// #define ROOT_HTML  "<!DOCTYPE html><html><head><title>WIFI Config by lwang</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><style type=\"text/css\">.input{display: block; margin-top: 10px;}.input span{width: 100px; float: left; float: left; height: 36px; line-height: 36px;}.input input{height: 30px;width: 200px;}.btn{width: 120px; height: 35px; background-color: #000000; border:0px; color:#ffffff; margin-top:15px; margin-left:100px;}</style><body><form method=\"GET\" action=\"connect\"><label class=\"input\"><span>WiFi SSID</span><input type=\"text\" name=\"ssid\"></label><label class=\"input\"><span>WiFi PASS</span><input type=\"text\"  name=\"pass\"></label><input class=\"btn\" type=\"submit\" name=\"submit\" value=\"Submie\"> <p><span> Nearby wifi:</P></form>"
-// WebServer server(80);
-
-// #define RESET_PIN   13  //用于删除WiFi信息
-
-// void setup() {
-
-//   Serial.begin(115200);
-//   pinMode(RESET_PIN, INPUT_PULLUP);
-
-//   // 连接WiFi
-//   if (!AutoConfig())
-//   {
-//     wifi_Config();
-//   }
-
-//   //用于删除已存WiFi
-//   if (digitalRead(RESET_PIN) == LOW) {
-//     delay(1000);
-//     esp_wifi_restore();
-//     delay(10);
-//     ESP.restart();  //复位esp32
-//   }
-// }
-
-// void loop() {
-//   server.handleClient();
-//   while (WiFi.status() == WL_CONNECTED) {
-//     //WIFI已连接
-
-//   }
-// }
-
-// //用于配置WiFi
-// void wifi_Config()
-// {
-//   Serial.println("scan start");
-//   // 扫描附近WiFi
-//   int n = WiFi.scanNetworks();
-//   Serial.println("scan done");
-//   if (n == 0) {
-//     Serial.println("no networks found");
-//     scanNetworksID = "no networks found";
-//   } else {
-//     Serial.print(n);
-//     Serial.println(" networks found");
-//     for (int i = 0; i < n; ++i) {
-//       // Print SSID and RSSI for each network found
-//       Serial.print(i + 1);
-//       Serial.print(": ");
-//       Serial.print(WiFi.SSID(i));
-//       Serial.print(" (");
-//       Serial.print(WiFi.RSSI(i));
-//       Serial.print(")");
-//       Serial.println((WiFi.encryptionType(i) == WIFI_AUTH_OPEN) ? " " : "*");
-//       scanNetworksID += "<P>" + WiFi.SSID(i) + "</P>";
-//       delay(10);
-//     }
-//   }
-//   Serial.println("");
-
-//   WiFi.mode(WIFI_AP);//配置为AP模式
-//   boolean result = WiFi.softAP(AP_SSID, ""); //开启WIFI热点
-//   if (result)
-//   {
-//     IPAddress myIP = WiFi.softAPIP();
-//     //打印相关信息
-//     Serial.println("");
-//     Serial.print("Soft-AP IP address = ");
-//     Serial.println(myIP);
-//     Serial.println(String("MAC address = ")  + WiFi.softAPmacAddress().c_str());
-//     Serial.println("waiting ...");
-//   } else {  //开启热点失败
-//     Serial.println("WiFiAP Failed");
-//     delay(3000);
-//     ESP.restart();  //复位esp32
-//   }
-
-//   if (MDNS.begin("esp32")) {
-//     Serial.println("MDNS responder started");
-//   }
-
-//   //首页
-//   server.on("/", []() {
-//     server.send(200, "text/html", ROOT_HTML + scanNetworksID + "</body></html>");
-//   });
-
-//   //连接
-//   server.on("/connect", []() {
-
-//     server.send(200, "text/html", "<html><body><font size=\"10\">successd,wifi connecting...<br />Please close this page manually.</font></body></html>");
-
-//     WiFi.softAPdisconnect(true);
-//     //获取输入的WIFI账户和密码
-//     wifi_ssid = server.arg("ssid");
-//     wifi_pass = server.arg("pass");
-//     server.close();
-//     WiFi.softAPdisconnect();
-//     Serial.println("WiFi Connect SSID:" + wifi_ssid + "  PASS:" + wifi_pass);
-
-//     //设置为STA模式并连接WIFI
-//     WiFi.mode(WIFI_STA);
-//     WiFi.begin(wifi_ssid.c_str(), wifi_pass.c_str());
-//     uint8_t Connect_time = 0; //用于连接计时，如果长时间连接不成功，复位设备
-//     while (WiFi.status() != WL_CONNECTED) {  //等待WIFI连接成功
-//       delay(500);
-//       Serial.print(".");
-//       Connect_time ++;
-//       if (Connect_time > 80) {  //长时间连接不上，复位设备
-//         Serial.println("Connection timeout, check input is correct or try again later!");
-//         delay(3000);
-//         ESP.restart();
-//       }
-//     }
-//     Serial.println("");
-//     Serial.println("WIFI Config Success");
-//     Serial.printf("SSID:%s", WiFi.SSID().c_str());
-//     Serial.print("  LocalIP:");
-//     Serial.print(WiFi.localIP());
-//     Serial.println("");
-
-//   });
-//   server.begin();
-// }
-
-// //用于上电自动连接WiFi
-// bool AutoConfig()
-// {
-//   WiFi.begin();
-//   for (int i = 0; i < 20; i++)
-//   {
-//     int wstatus = WiFi.status();
-//     if (wstatus == WL_CONNECTED)
-//     {
-//       Serial.println("WIFI SmartConfig Success");
-//       Serial.printf("SSID:%s", WiFi.SSID().c_str());
-//       Serial.printf(", PSW:%s\r\n", WiFi.psk().c_str());
-//       Serial.print("LocalIP:");
-//       Serial.print(WiFi.localIP());
-//       Serial.print(" ,GateIP:");
-//       Serial.println(WiFi.gatewayIP());
-//       return true;
-//     }
-//     else
-//     {
-//       Serial.print("WIFI AutoConfig Waiting......");
-//       Serial.println(wstatus);
-//       delay(1000);
-//     }
-//   }
-//   Serial.println("WIFI AutoConfig Faild!" );
-//   return false;
-// }
-
-
-
 #include <Arduino.h>
 #include <Bounce2.h>
+#include <WiFi.h>
+#include <HTTPClient.h>
+
 #include "clock.h"
 #include "main.h"
 #include "display.h"
@@ -184,6 +20,14 @@ Ds1302::DateTime now;
 int8_t state = 0;
 int16_t var_x;
 int16_t var_y;
+const char *ssid = "Shadow.CHENG";                      //wifi名
+const char *password = "cWsMwifi";              //wifi密码
+const char *host = "http://www.beijing-time.org/t/time.asp"; //url
+WiFiClient wifi_Client;
+HTTPClient http_client;
+String req;
+String rsp;
+
 unsigned char rocker_state = 0;
 const static char* Menuitems[] ={
     "Normal",
@@ -210,6 +54,31 @@ const static char* WeekDays[] =
     "Sunday"
 };
 
+void setupWifi()
+{
+  delay(10);
+  Serial.println("connecting WIFI");
+  WiFi.begin(ssid, password);
+  while (!WiFi.isConnected())
+  {
+    Serial.print(".");
+    delay(500);
+  }
+  Serial.println("OK");
+  Serial.println("Wifi connected");
+}
+
+void setUpHttpClient()
+{
+  req = (String)host;
+  Serial.println(req);
+  if (http_client.begin(req))
+  {
+    Serial.println("HTTPclient setUp done!");
+  }
+}
+
+
 void setup()
 {
     Serial.begin(115200);
@@ -235,6 +104,10 @@ void setup()
 
     printTime();
     display.drawFrame();
+
+    delay(3000);
+    setupWifi();
+    setUpHttpClient();
 }
 
 
@@ -259,6 +132,23 @@ void loop()
         printTime();
         copyDateTime(&now, &before);
     }
+
+    int http_code = http_client.GET();
+    Serial.println(http_code);
+    if (http_code > 0)
+    {
+        Serial.printf("HTTP get code: %d\n", http_code);
+        if (http_code == HTTP_CODE_OK)
+        {
+        rsp = http_client.getString();
+        Serial.println(rsp);
+        }
+        else
+        {
+        Serial.printf("fail to get cityWeather,code:%d\n", http_code);
+        }
+    }
+    delay(5000);
     
 }
 
@@ -283,7 +173,7 @@ unsigned char scanRocker(void)
 
 
 void printMenu(){
-    display.tft.fillRect(0, 72, 128, 16, ST77XX_BLUE);
+    display.tft.fillRect(2, 72, 90, 16, ST77XX_BLUE);
     display.tft.setTextColor(ST77XX_ORANGE);
     display.tft.setCursor(4, 72);
     display.tft.setTextSize(2);
