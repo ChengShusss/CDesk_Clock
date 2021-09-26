@@ -1,4 +1,5 @@
 #include "display.h"
+#include "utils.h"
 
 Display::Display(void):tft(TFT_CS, TFT_DC, TFT_RST){
     this->tft.initR(INITR_GREENTAB);      // Init ST7735S chip, green tab
@@ -46,3 +47,13 @@ void Display::println(int x, int y, char* text, uint16_t color, uint8_t size){
     this->tft.setCursor(x, y);
     this->tft.println(text);
 };
+
+void Display::showInitBar(int percent){
+    this->tft.fillScreen(BACKGROUND);
+    this->tft.drawRoundRect(60, 14, 100, 8, 3, ST77XX_WHITE);
+    this->tft.fillRoundRect(60, 14, percent, 8, 3, ST77XX_WHITE);
+    this->tft.setCursor(27, 72);
+    this->tft.setTextColor(ST77XX_WHITE);
+    this->tft.setTextSize(1);
+    this->tft.print("Powered By Shadow");
+}

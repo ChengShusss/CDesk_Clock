@@ -252,7 +252,6 @@ void loop()
     if (rocker_state != 255){
         state = menuJump[state][rocker_state];
         printMenu();
-        // rocker_state = -1;
     }
     if(sw.fell()){
         Serial.print("Pushed button.");
