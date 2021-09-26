@@ -5,6 +5,7 @@
 #include <Adafruit_GFX.h>    // Core graphics library
 #include <Adafruit_ST7735.h> // Hardware-specific library for ST7735
 #include <SPI.h>
+#include <Ds1302.h>
 
 // Debug Mode
 #define DEBUG_CS
@@ -35,8 +36,14 @@ public:
     void println(int x, int y, char* text);
     void println(int x, int y, char* text, uint16_t color, uint8_t size);
 
-    void showInitBar(int Percent);
     void clean(void);
+    void showInitBar(int Percent);
+
+    void drawTime(Ds1302::DateTime* before, Ds1302::DateTime* now);
+    void drawTime(Ds1302::DateTime* now);
+
+    void drawFrame(void);
+    
 // private:
     // For 1.44" and 1.8" TFT with ST7735 use:
     Adafruit_ST7735 tft;

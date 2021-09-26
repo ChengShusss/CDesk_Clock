@@ -170,6 +170,7 @@
 #include "clock.h"
 #include "main.h"
 #include "display.h"
+#include "utils.h"
 
 #define PIN_SW 32
 #define DEBOUNCE_TIME 10 //延时用来过滤不正常的信号，
@@ -178,8 +179,8 @@ Clock clk = Clock();
 Display display = Display();
 Bounce sw = Bounce();
 
+Ds1302::DateTime before;
 Ds1302::DateTime now;
-unsigned long time_isr;
 int8_t state = 0;
 int16_t var_x;
 int16_t var_y;
@@ -209,18 +210,6 @@ const static char* WeekDays[] =
     "Sunday"
 };
 
-// void callBack(void)
-// {
-//     if (millis() - time_isr > 150){
-//         int level = digitalRead(32); //读取GPIO_13上的电平
-//         Serial.printf("触发了中断，当前电平是： %d\n", level);
-//         time_isr = millis();
-//     }
-  
-// }
-
-
-
 void setup()
 {
     Serial.begin(115200);
@@ -241,8 +230,11 @@ void setup()
         clk.setTime(21, 9, 25, 21, 16, 30, 7);
     }
 
+    clk.getTime(&before);
+    clk.getTime(&now);
+
     printTime();
-    printMenu();
+    display.drawFrame();
 }
 
 
@@ -261,7 +253,12 @@ void loop()
         state = menuJump[state][4];
         printMenu();
     }
-    printTime();
+
+    clk.getTime(&now);
+    if (before.second != now.second){
+        printTime();
+        copyDateTime(&now, &before);
+    }
     
 }
 
@@ -296,65 +293,27 @@ void printMenu(){
 
 
 void printTime(void){
-//     display.tft.setTextColor(ST77XX_BLUE);
-//     display.tft.setCursor(4, 18);
-//     display.tft.setTextSize(4);
-//     display.tft.print(now.hour);
-//     display.tft.print(":");
-//     display.tft.print(now.minute);
-    
-    clk.getTime(&now);
-    
-
-    #ifdef DEBUG_CS    
-        static uint8_t last_second = 0;
-        if (last_second != now.second)
-        {
-            display.tft.fillRect(4, 18, 120, 32, ST77XX_BLUE);
-            display.tft.setTextColor(ST77XX_WHITE);
-            display.tft.setCursor(4, 18);
-            display.tft.setTextSize(4);
-            if(now.hour<10){
-                display.tft.print("0");
-            }
-            display.tft.print(now.hour);
-            display.tft.print(":");
-            if(now.minute<10){
-                display.tft.print("0");
-            }
-            display.tft.print(now.minute);
-
-            last_second = now.second;
-
-            Serial.print("20");
-            Serial.print(now.year);    // 00-99
-            Serial.print('-');
-            if (now.month < 10) Serial.print('0');
-            Serial.print(now.month);   // 01-12
-            Serial.print('-');
-            if (now.day < 10) Serial.print('0');
-            Serial.print(now.day);     // 01-31
-            Serial.print(' ');
-            Serial.print(WeekDays[now.dow - 1]); // 1-7
-            Serial.print(' ');
-            if (now.hour < 10) Serial.print('0');
-            Serial.print(now.hour);    // 00-23
-            Serial.print(':');
-            if (now.minute < 10) Serial.print('0');
-            Serial.print(now.minute);  // 00-59
-            Serial.print(':');
-            if (now.second < 10) Serial.print('0');
-            Serial.print(now.second);  // 00-59
-            Serial.println();
-
-            // Serial.print("Rocker-x:");
-            // Serial.print(var_x);
-            // Serial.print("  Rocker-y:");
-            // Serial.println(var_y);
-            Serial.print("State: ");
-            Serial.print(state);
-            Serial.print("  Rocker State: ");
-            Serial.println(rocker_state);
-        }
+    display.drawTime(&before, &now);
+    #ifdef DEBUG_CS
+        Serial.print("20");
+        Serial.print(now.year);    // 00-99
+        Serial.print('-');
+        if (now.month < 10) Serial.print('0');
+        Serial.print(now.month);   // 01-12
+        Serial.print('-');
+        if (now.day < 10) Serial.print('0');
+        Serial.print(now.day);     // 01-31
+        Serial.print(' ');
+        Serial.print(WeekDays[now.dow - 1]); // 1-7
+        Serial.print(' ');
+        if (now.hour < 10) Serial.print('0');
+        Serial.print(now.hour);    // 00-23
+        Serial.print(':');
+        if (now.minute < 10) Serial.print('0');
+        Serial.print(now.minute);  // 00-59
+        Serial.print(':');
+        if (now.second < 10) Serial.print('0');
+        Serial.print(now.second);  // 00-59
+        Serial.println();
     #endif
 }

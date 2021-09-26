@@ -53,8 +53,6 @@ void Display::clean(void){
 }
 
 void Display::showInitBar(int percent){
-    // clean last
-    
     this->tft.drawRoundRect(14, 60, 102, 8, 3, ST77XX_WHITE);
     this->tft.fillRoundRect(14 + percent, 61, 100 - percent, 6, 2, BACKGROUND);
     this->tft.fillRoundRect(14, 61, percent, 6, 2, ST77XX_WHITE);
@@ -62,4 +60,57 @@ void Display::showInitBar(int percent){
     this->tft.setTextColor(ST77XX_WHITE);
     this->tft.setTextSize(1);
     this->tft.print("Powered By Shadow");
+}
+
+void Display::drawTime(Ds1302::DateTime* before, Ds1302::DateTime* now){
+    char time[] = "00:00";
+    // set font size
+    this->tft.setTextSize(4);
+
+    // clean before time, avoid flicker.
+    this->tft.setTextColor(BACKGROUND);
+    this->tft.setCursor(6, 14);
+    castTimeToSting(before, time);
+    this->tft.print(time);
+    
+    // print time at tft
+    this->tft.setTextColor(TIME_COLOR);
+    this->tft.setCursor(6, 14);
+    castTimeToSting(now, time);
+    this->tft.print(time);
+    
+
+}
+
+
+void Display::drawTime(Ds1302::DateTime* now){
+    char time[] = "00:00";
+    // set font size
+    this->tft.setTextSize(4);
+    // print time at tft
+    this->tft.setTextColor(TIME_COLOR);
+    this->tft.setCursor(4, 14);
+    castTimeToSting(now, time);
+    this->tft.print(time);
+
+}
+
+void Display::drawFrame(void){
+    // draw horizontal lines
+    this->tft.drawLine(0, 0, 128, 0, LINE_COLOR);
+    this->tft.drawLine(0, 1, 128, 1, LINE_COLOR);
+    this->tft.drawLine(0, 10, 128, 10, LINE_COLOR);
+    this->tft.drawLine(0, 11, 128, 11, LINE_COLOR);
+    this->tft.drawLine(0, 64, 128, 64, LINE_COLOR);
+    this->tft.drawLine(0, 65, 128, 65, LINE_COLOR);
+    this->tft.drawLine(0, 126, 128, 126, LINE_COLOR);
+    this->tft.drawLine(0, 127, 128, 127, LINE_COLOR);
+
+    // draw vertical lines
+    this->tft.drawLine(0, 0, 0, 128, LINE_COLOR);
+    this->tft.drawLine(1, 0, 1, 128, LINE_COLOR);
+    this->tft.drawLine(96, 65, 96, 128, LINE_COLOR);
+    this->tft.drawLine(97, 65, 97, 128, LINE_COLOR);
+    this->tft.drawLine(126, 0, 126, 128, LINE_COLOR);
+    this->tft.drawLine(127, 0, 127, 128, LINE_COLOR);
 }
