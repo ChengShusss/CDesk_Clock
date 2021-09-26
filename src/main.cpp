@@ -183,12 +183,18 @@ unsigned long time_isr;
 int8_t state = 0;
 int16_t var_x;
 int16_t var_y;
-int rocker_state = 0;
+unsigned char rocker_state = 0;
 const static char* Menuitems[] ={
     "Normal",
     "Setting",
     "About",
     "Time Set",
+};
+const static int menuJump[4][6] = {
+    {0, 0, 0, 0, 1},
+    {2, 2, 1, 1, 3},
+    {1, 1, 2, 2, 2},
+    {3, 3, 1, 2, 0},
 };
 
 
@@ -242,26 +248,19 @@ void loop()
 {
     // get the current time
     sw.update();
-    switch(scanRocker()){
-        case 1:
-            Serial.println("UP");
-            break;
-        case 2:
-            Serial.println("DOWN");
-            break;
-        case 3:
-            Serial.println("LEFT");
-            break;
-        case 4:
-            Serial.println("RIGHT");
-            break;
+    rocker_state = scanRocker();
+    if (rocker_state != 255){
+        state = menuJump[state][rocker_state];
+        printMenu();
+        // rocker_state = -1;
     }
     if(sw.fell()){
         Serial.print("Pushed button.");
-        state = (state + 1) % 4;
+        state = menuJump[state][4];
         printMenu();
     }
     printTime();
+    
 }
 
 unsigned char scanRocker(void)
@@ -275,12 +274,12 @@ unsigned char scanRocker(void)
   {
     delay(10);
     keyUp = 0;
-    if (var_x <= 10)return 1;
-    else if (var_x >= 1010)return 2;
-    else if (var_y >= 1010)return 3;
-    else if (var_y <= 10)return 4;
+    if (var_x <= 10)return 0;
+    else if (var_x >= 1010)return 1;
+    else if (var_y >= 1010)return 2;
+    else if (var_y <= 10)return 3;
   } else if ((var_x > 10) && (var_x < 1010) && (var_y > 10) && (var_y < 1010))keyUp = 1;
-  return 0;
+  return 255;
 }
 
 
@@ -346,10 +345,14 @@ void printTime(void){
             Serial.print(now.second);  // 00-59
             Serial.println();
 
-            Serial.print("Rocker-x:");
-            Serial.print(var_x);
-            Serial.print("  Rocker-y:");
-            Serial.println(var_y);
+            // Serial.print("Rocker-x:");
+            // Serial.print(var_x);
+            // Serial.print("  Rocker-y:");
+            // Serial.println(var_y);
+            Serial.print("State: ");
+            Serial.print(state);
+            Serial.print("  Rocker State: ");
+            Serial.println(rocker_state);
         }
     #endif
 }
