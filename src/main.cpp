@@ -125,16 +125,14 @@ void setup()
     printTime();
     display.drawFrame();
     printMenu();
-
-    // delay(3000);
-    // network->setupWifi(ssid, password);
-    // network->setUpHttpClient(host);
 }
 
 
 void loop()
 {
+  // handle http request to config wifi.
     network->handleHttpRequest();
+    
     // get the current time
     sw.update();
     rocker_state = scanRocker();
@@ -152,7 +150,7 @@ void loop()
     if(sw.fell()){
         state = menuTable[state].sw;
         (*menuTable[state].operation)();
-        // printMenu();
+        printMenu();
     }
 
     clk.getTime(&now);
@@ -169,23 +167,6 @@ void loop()
       }
       copyDateTime(&now, &before);
     }
-
-    // int http_code = http_client.GET();
-    // Serial.println(http_code);
-    // if (http_code > 0)
-    // {
-    //     Serial.printf("HTTP get code: %d\n", http_code);
-    //     if (http_code == HTTP_CODE_OK)
-    //     {
-    //     rsp = http_client.getString();
-    //     Serial.println(rsp);
-    //     }
-    //     else
-    //     {
-    //     Serial.printf("fail to get cityWeather,code:%d\n", http_code);
-    //     }
-    // }
-    // delay(5000);
     
 }
 
