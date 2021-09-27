@@ -2,6 +2,7 @@
 
 #define MAIN
 #include "display.h"
+#include "pin.h"
 
 // Debug Mode
 #define DEBUG_CS
@@ -16,6 +17,8 @@ void wifi_Config();
 bool AutoConfig();
 
 unsigned char scanRocker(void);
+
+void printInfo(void);
 void printTime(void);
 void printMenu(void);
 

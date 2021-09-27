@@ -9,7 +9,6 @@
 #include "utils.h"
 #include "network.h"
 
-#define PIN_SW 32
 #define DEBOUNCE_TIME 10 //延时用来过滤不正常的信号，
 
 Clock clk = Clock();
@@ -26,7 +25,7 @@ char *password = "cWsMwifi";              //wifi密码
 char *host = "http://www.beijing-time.org/t/time.asp"; //url
 WiFiClient wifi_Client;
 HTTPClient http_client;
-Network network = Network();
+Network* network = new Network();
 String req;
 String rsp;
 
@@ -108,8 +107,8 @@ void setup()
     display.drawFrame();
 
     delay(3000);
-    network.setupWifi(ssid, password);
-    network.setUpHttpClient(host);
+    network->setupWifi(ssid, password);
+    network->setUpHttpClient(host);
 }
 
 
@@ -131,8 +130,11 @@ void loop()
 
     clk.getTime(&now);
     if (before.second != now.second){
+      if(before.minute != now.minute){
         printTime();
-        copyDateTime(&now, &before);
+      }
+      printInfo();
+      copyDateTime(&now, &before);
     }
 
     // int http_code = http_client.GET();
@@ -158,34 +160,22 @@ unsigned char scanRocker(void)
 {
   static unsigned char keyUp = 1;
 
-  var_x = analogRead(35) >> 2;
-  var_y = analogRead(34) >> 2;
+  var_x = analogRead(35) >> 5;
+  var_y = analogRead(34) >> 5;
 
-  if (keyUp && ((var_x <= 10) || (var_x >= 1010) || (var_y <= 10) || (var_y >= 1010)))
+  if (keyUp && ((var_x <= 10) || (var_x >= 120) || (var_y <= 10) || (var_y >= 120)))
   {
     delay(10);
     keyUp = 0;
     if (var_x <= 10)return 0;
-    else if (var_x >= 1010)return 1;
-    else if (var_y >= 1010)return 2;
+    else if (var_x >= 120)return 1;
+    else if (var_y >= 120)return 2;
     else if (var_y <= 10)return 3;
-  } else if ((var_x > 10) && (var_x < 1010) && (var_y > 10) && (var_y < 1010))keyUp = 1;
+  } else if ((var_x > 10) && (var_x < 120) && (var_y > 10) && (var_y < 120))keyUp = 1;
   return 255;
 }
 
-
-void printMenu(){
-    display.tft.fillRect(2, 72, 90, 16, ST77XX_BLUE);
-    display.tft.setTextColor(ST77XX_ORANGE);
-    display.tft.setCursor(4, 72);
-    display.tft.setTextSize(2);
-    display.tft.print(Menuitems[state]);
-}
-
-
-
-void printTime(void){
-    display.drawTime(&before, &now);
+void printInfo(void){
     #ifdef DEBUG_CS
         Serial.print("20");
         Serial.print(now.year);    // 00-99
@@ -213,8 +203,23 @@ void printTime(void){
         Serial.print("  rocker-y: ");
         Serial.println(var_y);
 
-        if(!network.isConnected()){
+        if(!network->isConnected()){
             Serial.println("Try to connect wifi...");
-        }
+          }
     #endif
+}
+
+
+void printMenu(){
+    display.tft.fillRect(2, 72, 90, 16, ST77XX_BLUE);
+    display.tft.setTextColor(ST77XX_ORANGE);
+    display.tft.setCursor(4, 72);
+    display.tft.setTextSize(1);
+    display.tft.print(Menuitems[state]);
+}
+
+
+
+void printTime(void){
+    display.drawTime(&before, &now);
 }
