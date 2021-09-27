@@ -40,6 +40,7 @@ public:
 
     void drawMenuItem(char ** menuItems, unsigned char n, unsigned char selected);
     
+    void drawWifiStatus(char* status);
 // private:
     // For 1.44" and 1.8" TFT with ST7735 use:
     Adafruit_ST7735 tft;

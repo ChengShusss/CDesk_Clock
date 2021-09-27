@@ -114,3 +114,14 @@ void Display::drawFrame(void){
     this->tft.drawLine(126, 0, 126, 128, LINE_COLOR);
     this->tft.drawLine(127, 0, 127, 128, LINE_COLOR);
 }
+
+void Display::drawWifiStatus(char* status){
+
+    this->tft.fillRect(2,0, 128, 8, BACKGROUND);
+    // set font size
+    this->tft.setTextSize(1);
+    // print time at tft
+    this->tft.setTextColor(TIME_COLOR);
+    this->tft.setCursor(2, 2);
+    this->tft.print(status);
+}

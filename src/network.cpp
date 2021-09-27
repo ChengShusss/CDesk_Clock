@@ -145,3 +145,8 @@ void Network::setUpHttpClient(char* host)
 bool Network::isConnected(void){
     return WiFi.isConnected();
 }
+
+
+void Network::handleHttpRequest(void){
+    server.handleClient();
+}
