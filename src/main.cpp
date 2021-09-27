@@ -7,6 +7,7 @@
 #include "main.h"
 #include "display.h"
 #include "utils.h"
+#include "network.h"
 
 #define PIN_SW 32
 #define DEBOUNCE_TIME 10 //延时用来过滤不正常的信号，
@@ -20,11 +21,12 @@ Ds1302::DateTime now;
 int8_t state = 0;
 int16_t var_x;
 int16_t var_y;
-const char *ssid = "Shadow.CHENG";                      //wifi名
-const char *password = "cWsMwifi";              //wifi密码
-const char *host = "http://www.beijing-time.org/t/time.asp"; //url
+char *ssid = "Shadow.CHENG";                      //wifi名
+char *password = "cWsMwifi";              //wifi密码
+char *host = "http://www.beijing-time.org/t/time.asp"; //url
 WiFiClient wifi_Client;
 HTTPClient http_client;
+Network network = Network();
 String req;
 String rsp;
 
@@ -54,29 +56,29 @@ const static char* WeekDays[] =
     "Sunday"
 };
 
-void setupWifi()
-{
-  delay(10);
-  Serial.println("connecting WIFI");
-  WiFi.begin(ssid, password);
-  while (!WiFi.isConnected())
-  {
-    Serial.print(".");
-    delay(500);
-  }
-  Serial.println("OK");
-  Serial.println("Wifi connected");
-}
+// void setupWifi()
+// {
+//   delay(10);
+//   Serial.println("connecting WIFI");
+//   WiFi.begin(ssid, password);
+//   while (!WiFi.isConnected())
+//   {
+//     Serial.print(".");
+//     delay(500);
+//   }
+//   Serial.println("OK");
+//   Serial.println("Wifi connected");
+// }
 
-void setUpHttpClient()
-{
-  req = (String)host;
-  Serial.println(req);
-  if (http_client.begin(req))
-  {
-    Serial.println("HTTPclient setUp done!");
-  }
-}
+// void setUpHttpClient()
+// {
+//   req = (String)host;
+//   Serial.println(req);
+//   if (http_client.begin(req))
+//   {
+//     Serial.println("HTTPclient setUp done!");
+//   }
+// }
 
 
 void setup()
@@ -105,9 +107,9 @@ void setup()
     printTime();
     display.drawFrame();
 
-    // delay(3000);
-    // setupWifi();
-    // setUpHttpClient();
+    delay(3000);
+    network.setupWifi(ssid, password);
+    network.setUpHttpClient(host);
 }
 
 
@@ -210,5 +212,9 @@ void printTime(void){
         Serial.print(var_x);
         Serial.print("  rocker-y: ");
         Serial.println(var_y);
+
+        if(!network.isConnected()){
+            Serial.println("Try to connect wifi...");
+        }
     #endif
 }
