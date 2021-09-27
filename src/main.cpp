@@ -20,9 +20,10 @@ Ds1302::DateTime now;
 int8_t state = 0;
 int16_t var_x;
 int16_t var_y;
-char *ssid = "Shadow.CHENG";                      //wifi名
-char *password = "cWsMwifi";              //wifi密码
-char *host = "http://www.beijing-time.org/t/time.asp"; //url
+bool isConnected = false;
+// char ssid[] = "Shadow.CHENG";              //wifi名
+// char password[] = "cWsMwifi";              //wifi密码
+char host[] = "http://www.beijing-time.org/t/time.asp"; //url
 WiFiClient wifi_Client;
 HTTPClient http_client;
 Network* network = new Network();
@@ -32,16 +33,31 @@ String rsp;
 unsigned char rocker_state = 0;
 const static char* Menuitems[] ={
     "Normal",
-    "Setting",
-    "About",
     "Time Set",
+    "Wifi Set",
+    "About",
+    "Auto Sync",
+    "Manual Set",
+    "Connect",
+    "Reset"
 };
-const static int menuJump[4][6] = {
-    {0, 0, 0, 0, 1},
-    {2, 2, 1, 1, 3},
-    {1, 1, 2, 2, 2},
-    {3, 3, 1, 2, 0},
+
+KEY_TABLE menuTable[] = {
+    {0, 0, 0, 1, 1, (*printMenu)}, // 0:normal
+    {3, 2, 0, 4, 4, (*printMenu)}, // 1:time set
+    {1, 3, 0, 6, 6, (*printMenu)}, // 2:wifi set
+    {2, 1, 0, 3, 3, (*testAbout)}, // 3:about
+    {5, 5, 1, 4, 4, (*testSync)}, // 4:auto sync
+    {4, 4, 1, 5, 5, (*printMenu)}, // 5:manual set
+    {7, 7, 2, 6, 6, (*printMenu)}, // 6:connect
+    {6, 6, 2, 7, 7, (*printMenu)}  // 7:reset
 };
+// const static int menuJump[4][6] = {
+//     {0, 0, 0, 1, 1},
+//     {2, 2, 0, 3, 3},
+//     {1, 1, 0, 2, 2},
+//     {3, 3, 1, 3, 0},
+// };
 
 
 const static char* WeekDays[] =
@@ -54,20 +70,6 @@ const static char* WeekDays[] =
     "Saturday",
     "Sunday"
 };
-
-// void setupWifi()
-// {
-//   delay(10);
-//   Serial.println("connecting WIFI");
-//   WiFi.begin(ssid, password);
-//   while (!WiFi.isConnected())
-//   {
-//     Serial.print(".");
-//     delay(500);
-//   }
-//   Serial.println("OK");
-//   Serial.println("Wifi connected");
-// }
 
 // void setUpHttpClient()
 // {
@@ -85,13 +87,30 @@ void setup()
     Serial.begin(115200);
     display.clean();
 
-    for(unsigned char i = 0; i <= 100; i += 10){
+    sw.attach(PIN_SW, INPUT_PULLUP);
+    sw.interval(DEBOUNCE_TIME);
+
+    if (digitalRead(PIN_SW) == LOW) {
+      delay(1000);
+      esp_wifi_restore();
+      delay(10);
+      ESP.restart();  //复位esp32
+    }
+
+    WiFi.begin();
+    for(unsigned char i = 0; i <= 100; i += 5){
+        if(network->autoConfig()){
+          i = 100;
+          display.showInitBar(i);
+          isConnected = true;
+          break;
+        }
         display.showInitBar(i);
         delay(300);
     }
+    delay(500);
     display.clean();
-    sw.attach(PIN_SW, INPUT_PULLUP);
-    sw.interval(DEBOUNCE_TIME);
+    
 
     // test if clock is halted and set a date-time (see example 2) to start it
     if (clk.isHalted())
@@ -105,10 +124,11 @@ void setup()
 
     printTime();
     display.drawFrame();
+    printMenu();
 
-    delay(3000);
-    network->setupWifi(ssid, password);
-    network->setUpHttpClient(host);
+    // delay(3000);
+    // network->setupWifi(ssid, password);
+    // network->setUpHttpClient(host);
 }
 
 
@@ -119,13 +139,20 @@ void loop()
     sw.update();
     rocker_state = scanRocker();
     if (rocker_state != 255){
-        state = menuJump[state][rocker_state];
+        // state = menuJump[state][rocker_state];
+        switch (rocker_state)
+        {
+          case 0: state = menuTable[state].up; break;
+          case 1: state = menuTable[state].down; break;
+          case 2: state = menuTable[state].left; break;
+          case 3: state = menuTable[state].right; break;
+        }
         printMenu();
     }
     if(sw.fell()){
-        Serial.print("Pushed button.");
-        state = menuJump[state][4];
-        printMenu();
+        state = menuTable[state].sw;
+        (*menuTable[state].operation)();
+        // printMenu();
     }
 
     clk.getTime(&now);
@@ -133,7 +160,13 @@ void loop()
       if(before.minute != now.minute){
         printTime();
       }
-      printInfo();
+      // printInfo();
+      if (isConnected){
+        display.drawWifiStatus("Connected");
+      }
+      else{
+        display.drawWifiStatus("Offline");
+      }
       copyDateTime(&now, &before);
     }
 
@@ -222,4 +255,33 @@ void printMenu(){
 
 void printTime(void){
     display.drawTime(&before, &now);
+}
+
+void testAbout(void){
+  Serial.println("Here is about.");
+}
+
+void testSync(void){
+  HTTPClient http; // 声明HTTPClient对象
+
+  http.begin(host); // 准备启用连接
+  Serial.println("Start to get info.");
+
+  int httpCode = http.GET(); // 发起GET请求
+
+  if (httpCode > 0) // 如果状态码大于0说明请求过程无异常
+  {
+    if (httpCode == HTTP_CODE_OK) // 请求被服务器正常响应，等同于httpCode == 200
+    {
+      String payload = http.getString(); // 读取服务器返回的响应正文数据
+                                         // 如果正文数据很多该方法会占用很大的内存
+      Serial.println(payload);
+    }
+  }
+  else
+  {
+    Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
+  }
+
+  http.end(); // 结束当前连接
 }
