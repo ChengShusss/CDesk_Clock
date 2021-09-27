@@ -105,9 +105,9 @@ void setup()
     printTime();
     display.drawFrame();
 
-    delay(3000);
-    setupWifi();
-    setUpHttpClient();
+    // delay(3000);
+    // setupWifi();
+    // setUpHttpClient();
 }
 
 
@@ -133,22 +133,22 @@ void loop()
         copyDateTime(&now, &before);
     }
 
-    int http_code = http_client.GET();
-    Serial.println(http_code);
-    if (http_code > 0)
-    {
-        Serial.printf("HTTP get code: %d\n", http_code);
-        if (http_code == HTTP_CODE_OK)
-        {
-        rsp = http_client.getString();
-        Serial.println(rsp);
-        }
-        else
-        {
-        Serial.printf("fail to get cityWeather,code:%d\n", http_code);
-        }
-    }
-    delay(5000);
+    // int http_code = http_client.GET();
+    // Serial.println(http_code);
+    // if (http_code > 0)
+    // {
+    //     Serial.printf("HTTP get code: %d\n", http_code);
+    //     if (http_code == HTTP_CODE_OK)
+    //     {
+    //     rsp = http_client.getString();
+    //     Serial.println(rsp);
+    //     }
+    //     else
+    //     {
+    //     Serial.printf("fail to get cityWeather,code:%d\n", http_code);
+    //     }
+    // }
+    // delay(5000);
     
 }
 
@@ -205,5 +205,10 @@ void printTime(void){
         if (now.second < 10) Serial.print('0');
         Serial.print(now.second);  // 00-59
         Serial.println();
+
+        Serial.print("rocker-x: ");
+        Serial.print(var_x);
+        Serial.print("  rocker-y: ");
+        Serial.println(var_y);
     #endif
 }
