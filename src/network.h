@@ -13,10 +13,13 @@
 class Network{
 private:
     WebServer server;
+    HTTPClient http_client;
     const char* AP_SSID; //热点名称
     String wifi_ssid;
     String wifi_pass;
     String scanNetworksID;//用于储存扫描到的WiFi
+    String req;
+    String rsp;
     // char* ssid;
     // char* pwd;
 public:
@@ -25,6 +28,7 @@ public:
 
     void wifiConfig(void);
     bool autoConfig(void);
+    void handleClient(void);
     
     void setUpHttpClient(char* host);
 

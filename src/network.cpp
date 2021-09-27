@@ -1,7 +1,11 @@
 #include <network.h>
 
-
-Network::Network():server(80), wifi_ssid(""), wifi_pass(""), scanNetworksID(""){
+Network::Network():
+        server(80),
+        wifi_ssid(""),
+        wifi_pass(""),
+        scanNetworksID("")
+{
     AP_SSID  = "ESP32_Config"; //热点名称
 }
 
@@ -104,12 +108,9 @@ void Network::wifiConfig(void){
 }
 
 bool Network::autoConfig(void){
-    WiFi.begin();
-    for (int i = 0; i < 20; i++)
+    int wstatus = WiFi.status();
+    if (wstatus == WL_CONNECTED)
     {
-        int wstatus = WiFi.status();
-        if (wstatus == WL_CONNECTED)
-        {
         Serial.println("WIFI SmartConfig Success");
         Serial.printf("SSID:%s", WiFi.SSID().c_str());
         Serial.printf(", PSW:%s\r\n", WiFi.psk().c_str());
@@ -118,26 +119,27 @@ bool Network::autoConfig(void){
         Serial.print(" ,GateIP:");
         Serial.println(WiFi.gatewayIP());
         return true;
-        }
-        else
-        {
+    }
+    else
+    {
         Serial.print("WIFI AutoConfig Waiting......");
         Serial.println(wstatus);
-        delay(1000);
-        }
     }
-    Serial.println("WIFI AutoConfig Faild!" );
     return false;
+}
+
+void Network::handleClient(void){
+    server.handleClient();
 }
 
 void Network::setUpHttpClient(char* host)
 {
-//   req = (String)host;
-//   Serial.println(req);
-//   if (http_client.begin(req))
-//   {
-//     Serial.println("HTTPclient setUp done!");
-//   }
+  req = (String)host;
+  Serial.println(req);
+  if (http_client.begin(req))
+  {
+    Serial.println("HTTPclient setUp done!");
+  }
 }
 
 bool Network::isConnected(void){

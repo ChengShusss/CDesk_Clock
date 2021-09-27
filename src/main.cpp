@@ -24,9 +24,9 @@ int16_t var_y;
 char *ssid = "Shadow.CHENG";                      //wifi名
 char *password = "cWsMwifi";              //wifi密码
 char *host = "http://www.beijing-time.org/t/time.asp"; //url
-WiFiClient wifi_Client;
+// WiFiClient wifi_Client;
 HTTPClient http_client;
-Network network = Network();
+Network* network = new Network();
 String req;
 String rsp;
 
@@ -86,12 +86,37 @@ void setup()
     Serial.begin(115200);
     display.clean();
 
-    for(unsigned char i = 0; i <= 100; i += 10){
+    WiFi.begin();
+    
+    for(unsigned char i = 0; i <= 100; i += 5){
+        if(network->autoConfig()){
+            i = 100;
+            display.showInitBar(i);
+            break;
+        }
         display.showInitBar(i);
-        delay(300);
+        delay(500);
     }
-    display.clean();
+    
+    delay(1000);
+    
+    if (!network->isConnected()){
+        network->wifiConfig();
+    }
+
     sw.attach(PIN_SW, INPUT_PULLUP);
+    
+
+    //用于删除已存WiFi
+    if (digitalRead(PIN_SW) == LOW) {
+        delay(1000);
+        esp_wifi_restore();
+        delay(10);
+        ESP.restart();  //复位esp32
+    }
+
+    display.clean();
+    
     sw.interval(DEBOUNCE_TIME);
 
     // test if clock is halted and set a date-time (see example 2) to start it
@@ -107,14 +132,15 @@ void setup()
     printTime();
     display.drawFrame();
 
-    delay(3000);
-    network.setupWifi(ssid, password);
-    network.setUpHttpClient(host);
+    // delay(3000);
+    // network->setupWifi(ssid, password);
+    // network->setUpHttpClient(host);
 }
 
 
 void loop()
 {
+    network->handleClient();
     
     // get the current time
     sw.update();
@@ -213,7 +239,7 @@ void printTime(void){
         Serial.print("  rocker-y: ");
         Serial.println(var_y);
 
-        if(!network.isConnected()){
+        if(!network->isConnected()){
             Serial.println("Try to connect wifi...");
         }
     #endif
