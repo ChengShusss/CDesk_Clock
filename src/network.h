@@ -29,6 +29,7 @@ public:
     void setUpHttpClient(char* host);
 
     bool isConnected(void);
+    void handleHttpRequest(void);
 };
 
 

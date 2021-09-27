@@ -49,7 +49,7 @@ KEY_TABLE menuTable[] = {
     {2, 1, 0, 3, 3, (*testAbout)}, // 3:about
     {5, 5, 1, 4, 4, (*testSync)}, // 4:auto sync
     {4, 4, 1, 5, 5, (*printMenu)}, // 5:manual set
-    {7, 7, 2, 6, 6, (*printMenu)}, // 6:connect
+    {7, 7, 2, 6, 6, (*webWifiConfig)}, // 6:connect
     {6, 6, 2, 7, 7, (*printMenu)}  // 7:reset
 };
 // const static int menuJump[4][6] = {
@@ -134,7 +134,7 @@ void setup()
 
 void loop()
 {
-    
+    network->handleHttpRequest();
     // get the current time
     sw.update();
     rocker_state = scanRocker();
@@ -300,4 +300,9 @@ void testSync(void){
   }
 
   http.end(); // 结束当前连接
+}
+
+
+void webWifiConfig(){
+  network->wifiConfig();
 }

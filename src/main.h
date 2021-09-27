@@ -41,4 +41,7 @@ void testAbout(void);
 void testSync(void);
 
 
+void webWifiConfig();
+
+
 #endif
