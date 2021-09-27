@@ -263,6 +263,9 @@ void testAbout(void){
 
 void testSync(void){
   HTTPClient http; // 声明HTTPClient对象
+  uint8_t dt[] = {0, 0, 0, 0, 0, 0, 0};
+  uint8_t i = 0;
+  uint8_t p = 0;
 
   http.begin(host); // 准备启用连接
   Serial.println("Start to get info.");
@@ -275,7 +278,20 @@ void testSync(void){
     {
       String payload = http.getString(); // 读取服务器返回的响应正文数据
                                          // 如果正文数据很多该方法会占用很大的内存
-      Serial.println(payload);
+      // Serial.println(payload);
+      // while(payload[i] != '\n') i ++;
+      // i++;
+      i = 10;
+      while(p <= 6){
+        while (payload[i] < '0' || payload[i] > '9') i++;
+        while (payload[i] >= '0' && payload[i] <= '9'){
+          dt[p] = (dt[p] * 10 + payload[i] - '0' ) % 100;
+          i++;
+        }
+        p++;
+      }
+      clk.setTime(dt[0], dt[1], dt[2], dt[4], dt[5], dt[6], dt[3]);
+      Serial.println("Setting Time Success...");
     }
   }
   else
