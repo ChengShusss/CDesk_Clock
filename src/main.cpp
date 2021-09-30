@@ -158,8 +158,8 @@ void loop()
       if(before.minute != now.minute){
         printTime();
       }
-      // printInfo();
-      if (isConnected){
+      printInfo();
+      if (network->isConnected()){
         display.drawWifiStatus("Connected");
       }
       else{
@@ -217,9 +217,13 @@ void printInfo(void){
         Serial.print("  rocker-y: ");
         Serial.println(var_y);
 
-        if(!network->isConnected()){
-            Serial.println("Try to connect wifi...");
-          }
+        if(network->isConnected()){
+            Serial.println("Connected");
+        }
+        else{
+          Serial.println("Not Connected");
+        }
+        
     #endif
 }
 
