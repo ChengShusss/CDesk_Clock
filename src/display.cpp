@@ -1,5 +1,6 @@
 #include "display.h"
 #include "utils.h"
+#include "libs/Segment720pt7b.h"
 
 Display::Display(void):tft(TFT_CS, TFT_DC, TFT_RST){
     this->tft.initR(INITR_GREENTAB);      // Init ST7735S chip, green tab
@@ -65,19 +66,23 @@ void Display::showInitBar(int percent){
 void Display::drawTime(Ds1302::DateTime* before, Ds1302::DateTime* now){
     char time[] = "00:00";
     // set font size
-    this->tft.setTextSize(4);
+    // this->tft.setTextSize(4);
+
+    tft.setFont(&Segment720pt7b);
 
     // clean before time, avoid flicker.
-    this->tft.setTextColor(BACKGROUND);
-    this->tft.setCursor(6, 20);
+    this->tft.setTextColor(LINE_COLOR);
+    this->tft.setCursor(6, 46);
     castTimeToSting(before, time);
-    this->tft.print(time);
+    this->tft.print("88888");
     
     // print time at tft
     this->tft.setTextColor(TIME_COLOR);
-    this->tft.setCursor(6, 20);
+    this->tft.setCursor(6, 46);
     castTimeToSting(now, time);
     this->tft.print(time);
+
+    tft.setFont();
     
 
 }
@@ -87,11 +92,15 @@ void Display::drawTime(Ds1302::DateTime* now){
     char time[] = "00:00";
     // set font size
     this->tft.setTextSize(4);
+
+    tft.setFont(&Segment720pt7b);
+
     // print time at tft
     this->tft.setTextColor(TIME_COLOR);
     this->tft.setCursor(6, 20);
     castTimeToSting(now, time);
     this->tft.print(time);
+    tft.setFont();
 
 }
 

@@ -71,17 +71,6 @@ const static char* WeekDays[] =
     "Sunday"
 };
 
-// void setUpHttpClient()
-// {
-//   req = (String)host;
-//   Serial.println(req);
-//   if (http_client.begin(req))
-//   {
-//     Serial.println("HTTPclient setUp done!");
-//   }
-// }
-
-
 void setup()
 {
     Serial.begin(115200);
@@ -167,7 +156,6 @@ void loop()
       }
       copyDateTime(&now, &before);
     }
-    
 }
 
 unsigned char scanRocker(void)
