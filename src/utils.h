@@ -17,7 +17,7 @@
 // #define ST77XX_ORANGE 0xFC00
 #define BACKGROUND 0x0000
 #define TIME_COLOR 0xFFFF
-#define LINE_COLOR 0x2084
+#define LINE_COLOR 0x1042
 
 #include <Ds1302.h>
 
