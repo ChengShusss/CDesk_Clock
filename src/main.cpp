@@ -9,6 +9,9 @@
 #include "utils.h"
 #include "network.h"
 
+// #include "libs/digitalFont.h"
+#include "libs/digifaw18pt7b.h"
+
 #define DEBOUNCE_TIME 10 //延时用来过滤不正常的信号，
 
 Clock clk = Clock();
@@ -71,17 +74,6 @@ const static char* WeekDays[] =
     "Sunday"
 };
 
-// void setUpHttpClient()
-// {
-//   req = (String)host;
-//   Serial.println(req);
-//   if (http_client.begin(req))
-//   {
-//     Serial.println("HTTPclient setUp done!");
-//   }
-// }
-
-
 void setup()
 {
     Serial.begin(115200);
@@ -126,9 +118,6 @@ void setup()
     display.drawFrame();
     printMenu();
 
-    // delay(3000);
-    // network->setupWifi(ssid, password);
-    // network->setUpHttpClient(host);
 }
 
 
@@ -170,23 +159,6 @@ void loop()
       copyDateTime(&now, &before);
     }
 
-    // int http_code = http_client.GET();
-    // Serial.println(http_code);
-    // if (http_code > 0)
-    // {
-    //     Serial.printf("HTTP get code: %d\n", http_code);
-    //     if (http_code == HTTP_CODE_OK)
-    //     {
-    //     rsp = http_client.getString();
-    //     Serial.println(rsp);
-    //     }
-    //     else
-    //     {
-    //     Serial.printf("fail to get cityWeather,code:%d\n", http_code);
-    //     }
-    // }
-    // delay(5000);
-    
 }
 
 unsigned char scanRocker(void)
