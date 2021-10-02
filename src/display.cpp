@@ -1,6 +1,7 @@
 #include "display.h"
 #include "utils.h"
 #include "libs/Segment720pt7b.h"
+#include <SPIFFS.h>
 
 Display::Display(void):tft(TFT_CS, TFT_DC, TFT_RST){
     this->tft.initR(INITR_GREENTAB);      // Init ST7735S chip, green tab
@@ -133,4 +134,77 @@ void Display::drawWifiStatus(char* status){
     this->tft.setTextColor(TIME_COLOR);
     this->tft.setCursor(2, 2);
     this->tft.print(status);
+}
+
+void Display::openFontFile(void){
+  static File f = SPIFFS.open(FONT_FILE);
+  fontFile = &f;
+}
+
+int Display::drawUtf8Char(uint16_t uni, uint8_t x, uint8_t y, uint16_t color){
+  uint8_t cur_x = x;
+  uint8_t cur_y = y;
+  char charData[30];
+  uint16_t page = (uni >> 8) + 0x10;
+  fontFile->seek(page, SeekMode(SEEK_SET));
+  uint16_t pageOffset = fontFile->read();
+  
+  uint32_t charOffset =  (pageOffset * 7936) + 272 + ((uni & 0xff)) * 31 + 1;
+  fontFile->seek(charOffset, SeekMode(SEEK_SET));
+  fontFile->readBytes(charData, 30);
+
+  for (uint8_t y = 0; y < FONT_CHINESE_HEIGHT; y++) {
+    for (uint8_t x = 0; x < FONT_CHINESE_WIDTH; x++) {
+      uint8_t pix = charData[y * 2 + x / 8] & (1 << (x % 8));
+      if (pix) {
+        tft.drawPixel(cur_x + x, cur_y + y, color);
+      }else{
+        tft.drawPixel(cur_x + x, cur_y + y, BACKGROUND);
+      }
+    }
+  }
+  return WIDTH;
+}
+
+void Display::drawUtf8String(const char* utf8Str, uint8_t x, uint8_t y, uint16_t color){
+  uint8_t cur_x = x;
+  uint8_t p = 0;
+  uint16_t unicode = 0;
+  while (*(utf8Str + p)){
+    unicode = 0;
+    uint8_t byte1 = *(utf8Str + p);
+    p++;
+    if ((byte1 & 0x80) == 0) {
+      unicode = byte1;
+    } else {
+      uint8_t byte2 = *(utf8Str + p);
+      p++;
+      if (byte2 == 0) {
+        break;
+      }
+      if ((byte1 & 0xE0) == 0xC0) {
+        unicode = ((byte1 & 0x1F) << 6) | (byte2 & 0x3F);
+      } else {
+        uint8_t byte3 = *(utf8Str + p);
+        p++;
+        if (byte3 == 0) {
+          break;
+        }
+        if ((byte1 & 0xf0) == 0xE0) {
+          unicode =
+              ((byte1 & 0x0F) << 12) | ((byte2 & 0x3F) << 6) | (byte3 & 0x3F);
+        } else {
+          break;
+        }
+      }
+    }
+    drawUtf8Char(unicode, cur_x, y, color);
+    cur_x += 16;
+  }
+  
+
+
+
+  
+
 }

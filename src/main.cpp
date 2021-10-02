@@ -9,9 +9,6 @@
 #include "utils.h"
 #include "network.h"
 
-// #include "libs/digitalFont.h"
-#include "libs/digifaw18pt7b.h"
-
 #define DEBOUNCE_TIME 10 //延时用来过滤不正常的信号，
 
 Clock clk = Clock();
@@ -24,8 +21,6 @@ int8_t state = 0;
 int16_t var_x;
 int16_t var_y;
 bool isConnected = false;
-// char ssid[] = "Shadow.CHENG";              //wifi名
-// char password[] = "cWsMwifi";              //wifi密码
 char host[] = "http://www.beijing-time.org/t/time.asp"; //url
 WiFiClient wifi_Client;
 HTTPClient http_client;
@@ -55,13 +50,6 @@ KEY_TABLE menuTable[] = {
     {7, 7, 2, 6, 6, (*webWifiConfig)}, // 6:connect
     {6, 6, 2, 7, 7, (*printMenu)}  // 7:reset
 };
-// const static int menuJump[4][6] = {
-//     {0, 0, 0, 1, 1},
-//     {2, 2, 0, 3, 3},
-//     {1, 1, 0, 2, 2},
-//     {3, 3, 1, 3, 0},
-// };
-
 
 const static char* WeekDays[] =
 {
@@ -74,8 +62,19 @@ const static char* WeekDays[] =
     "Sunday"
 };
 
+const static char* Notes[] = {
+  "今天不上班",
+  "下班啦",
+};
+uint8_t noteIndex = 0;
+
+const static char testChinese[] = "测试中文";
+unsigned indexChinese = 0;
+
 void setup()
 {
+  
+    SPIFFS.begin();
     Serial.begin(115200);
     display.clean();
 
@@ -117,6 +116,7 @@ void setup()
     printTime();
     display.drawFrame();
     printMenu();
+    display.openFontFile();
 
 }
 
@@ -157,7 +157,17 @@ void loop()
         display.drawWifiStatus("Offline");
       }
       copyDateTime(&now, &before);
+
+      display.drawUtf8Char(0x6d4b, 6, 88, ST7735_ORANGE);
+
+      // display.drawUtf8String(Notes[noteIndex], 6, 108, BACKGROUND);
+      noteIndex = (noteIndex + 1) % 2;
+      display.drawUtf8String(Notes[noteIndex], 6, 108, ST7735_RED);
+      Serial.println("测试输出");
+
+      // test print
     }
+    Serial.print("-");
 
 }
 

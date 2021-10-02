@@ -19,6 +19,12 @@
 #define TIME_COLOR 0xFFFF
 #define LINE_COLOR 0x2084
 
+// =================================================
+// String defination
+// =================================================
+#define FONT_FILE "/SansFont"
+
+
 #include <Ds1302.h>
 
 void copyDateTime(Ds1302::DateTime* src, Ds1302::DateTime* dst);
