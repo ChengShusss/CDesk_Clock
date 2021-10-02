@@ -114,8 +114,8 @@ void setup()
     clk.getTime(&now);
 
     printTime();
-    display.drawFrame();
-    printMenu();
+    // display.drawFrame();
+    // printMenu();
     display.openFontFile();
 
 }
@@ -125,6 +125,8 @@ void loop()
 {
     network->handleHttpRequest();
     // get the current time
+
+    // Rocker update
     sw.update();
     rocker_state = scanRocker();
     if (rocker_state != 255){
@@ -141,7 +143,6 @@ void loop()
     if(sw.fell()){
         state = menuTable[state].sw;
         (*menuTable[state].operation)();
-        // printMenu();
     }
 
     clk.getTime(&now);
@@ -157,17 +158,7 @@ void loop()
         display.drawWifiStatus("Offline");
       }
       copyDateTime(&now, &before);
-
-      display.drawUtf8Char(0x6d4b, 6, 88, ST7735_ORANGE);
-
-      // display.drawUtf8String(Notes[noteIndex], 6, 108, BACKGROUND);
-      noteIndex = (noteIndex + 1) % 2;
-      display.drawUtf8String(Notes[noteIndex], 6, 108, ST7735_RED);
-      Serial.println("测试输出");
-
-      // test print
     }
-    Serial.print("-");
 
 }
 
