@@ -64,10 +64,37 @@ void Display::showInitBar(int percent){
     this->tft.print("Powered By Shadow");
 }
 
+
+void Display::drawPrompt(void){
+  tft.setCursor(2, 4);
+  tft.setTextSize(1);
+
+  // print user
+  tft.setTextColor(PROMPT_USER_COLOR);
+  tft.print(PROMPT_USER_TEXT);
+  // print @
+  tft.setTextColor(PROMPT_AT_COLOR);
+  tft.print(PROMPT_AT_SYMBOL);
+  // print host
+  tft.setTextColor(PROMPT_HOST_COLOR);
+  tft.print(PROMPT_HOST_TEXT);
+
+  // print prompt signal
+  tft.setCursor(2, 14);
+  // tft.setTextSize(2);
+  tft.setTextColor(PROMPT_MARK_COLOR);
+  tft.print(PROMPT_MARK_TEXT);
+
+  // print prompt split line
+  tft.setCursor(0, 20);
+  // tft.setTextSize(2);
+  tft.setTextColor(LINE_COLOR);
+  tft.print(PROMPT_SPLIT_LINE);
+}
+
 void Display::drawTime(Ds1302::DateTime* before, Ds1302::DateTime* now){
     char time[] = "00:00";
     // set font size
-    // this->tft.setTextSize(4);
 
     tft.setFont(&Segment720pt7b);
 

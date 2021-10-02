@@ -19,10 +19,21 @@
 #define TIME_COLOR 0xFFFF
 #define LINE_COLOR 0x2084
 
+#define PROMPT_USER_COLOR 0x4c66
+#define PROMPT_AT_COLOR 0x9492
+#define PROMPT_HOST_COLOR 0x0973
+#define PROMPT_MARK_COLOR 0xa31e
+
 // =================================================
 // String defination
 // =================================================
 #define FONT_FILE "/SansFont"
+
+#define PROMPT_USER_TEXT "Shadow"
+#define PROMPT_AT_SYMBOL " @ "
+#define PROMPT_HOST_TEXT "esp32"
+#define PROMPT_MARK_TEXT "$ >"
+#define PROMPT_SPLIT_LINE "- - - - - - - - - - - - -"
 
 
 #include <Ds1302.h>

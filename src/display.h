@@ -40,6 +40,8 @@ public:
     void clean(void);
     void showInitBar(int Percent);
 
+    void drawPrompt(void);
+
     void drawTime(Ds1302::DateTime* before, Ds1302::DateTime* now);
     void drawTime(Ds1302::DateTime* now);
 

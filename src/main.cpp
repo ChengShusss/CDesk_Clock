@@ -158,6 +158,8 @@ void loop()
         display.drawWifiStatus("Offline");
       }
       copyDateTime(&now, &before);
+      display.tft.fillRect(2, 4, 124, 18, BACKGROUND);
+      display.drawPrompt();
     }
 
 }
