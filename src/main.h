@@ -23,6 +23,13 @@ typedef struct
   void (*operation)(void);
 } KEY_TABLE;
 
+// 定义状态的枚举
+enum STATE{
+  DATETIME,
+  SYNC_TIME,
+  CONFIG,
+} state;
+
 
 void wifi_Config();
 
@@ -32,14 +39,13 @@ bool AutoConfig();
 unsigned char scanRocker(void);
 
 void printInfo(void);
+
+
+void updateMenu(void);
+void updateWifiStatus(void);
 void printTime(void);
-void printMenu(void);
-
-
-void testAbout(void);
 
 void testSync(void);
-
 
 void webWifiConfig();
 

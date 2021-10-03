@@ -2,6 +2,9 @@
 #include "utils.h"
 #include "libs/Segment720pt7b.h"
 #include <SPIFFS.h>
+#include "libs/fontData.h"
+
+
 
 Display::Display(void):tft(TFT_CS, TFT_DC, TFT_RST){
     this->tft.initR(INITR_GREENTAB);      // Init ST7735S chip, green tab
@@ -48,6 +51,11 @@ void Display::println(int x, int y, char* text, uint16_t color, uint8_t size){
     this->tft.setTextColor(color);
     this->tft.setCursor(x, y);
     this->tft.println(text);
+};
+
+
+void Display::drawBitmap(int x, int y, int w, int h, uint8_t* img, uint16_t color){
+  tft.drawBitmap(x, y, img, w, h, color);
 };
 
 void Display::clean(void){
@@ -132,27 +140,19 @@ void Display::drawTime(Ds1302::DateTime* now){
 
 }
 
-void Display::drawFrame(void){
-    // draw horizontal lines
-    this->tft.drawLine(0, 0, 128, 0, LINE_COLOR);
-    this->tft.drawLine(0, 1, 128, 1, LINE_COLOR);
-    this->tft.drawLine(0, 10, 128, 10, LINE_COLOR);
-    this->tft.drawLine(0, 11, 128, 11, LINE_COLOR);
-    this->tft.drawLine(0, 55, 128, 55, LINE_COLOR);
-    this->tft.drawLine(0, 56, 128, 56, LINE_COLOR);
-    this->tft.drawLine(0, 126, 128, 126, LINE_COLOR);
-    this->tft.drawLine(0, 127, 128, 127, LINE_COLOR);
-
-    // draw vertical lines
-    this->tft.drawLine(0, 0, 0, 128, LINE_COLOR);
-    this->tft.drawLine(1, 0, 1, 128, LINE_COLOR);
-    this->tft.drawLine(96, 55, 96, 128, LINE_COLOR);
-    this->tft.drawLine(97, 55, 97, 128, LINE_COLOR);
-    this->tft.drawLine(126, 0, 126, 128, LINE_COLOR);
-    this->tft.drawLine(127, 0, 127, 128, LINE_COLOR);
+void Display::drawMenuItem(const char* menuItems, unsigned char n, bool isTyping){
+  tft.setCursor(20, 14);
+  tft.setTextSize(1);
+  tft.setTextColor(PROMPT_USER_COLOR);
+  tft.print(menuItems);
+  if(!isTyping){
+    tft.setTextColor(BACKGROUND);
+  }
+  tft.print('_');
 }
 
-void Display::drawWifiStatus(char* status){
+
+void Display::drawWifiStatus(const char* status){
 
     this->tft.fillRect(2,120, 128, 8, BACKGROUND);
     // set font size
@@ -163,34 +163,20 @@ void Display::drawWifiStatus(char* status){
     this->tft.print(status);
 }
 
-void Display::openFontFile(void){
-  static File f = SPIFFS.open(FONT_FILE);
-  fontFile = &f;
-}
+// void Display::openFontFile(void){
+//   static File f = SPIFFS.open(FONT_FILE);
+//   fontFile = &f;
+// }
 
 int Display::drawUtf8Char(uint16_t uni, uint8_t x, uint8_t y, uint16_t color){
-  uint8_t cur_x = x;
-  uint8_t cur_y = y;
-  char charData[30];
-  uint16_t page = (uni >> 8) + 0x10;
-  fontFile->seek(page, SeekMode(SEEK_SET));
-  uint16_t pageOffset = fontFile->read();
-  
-  uint32_t charOffset =  (pageOffset * 7936) + 272 + ((uni & 0xff)) * 31 + 1;
-  fontFile->seek(charOffset, SeekMode(SEEK_SET));
-  fontFile->readBytes(charData, 30);
-
-  for (uint8_t y = 0; y < FONT_CHINESE_HEIGHT; y++) {
-    for (uint8_t x = 0; x < FONT_CHINESE_WIDTH; x++) {
-      uint8_t pix = charData[y * 2 + x / 8] & (1 << (x % 8));
-      if (pix) {
-        tft.drawPixel(cur_x + x, cur_y + y, color);
-      }else{
-        tft.drawPixel(cur_x + x, cur_y + y, BACKGROUND);
-      }
-    }
+  uint16_t offset = binarySerch(indexTable, 3606, uni);
+  if (offset == 65535){
+    tft.drawBitmap(x, y, unFind, 16, 15, color);
+  } else{
+    tft.drawBitmap(x, y, fontData + (offset * 30), 16, 15, color);
   }
-  return WIDTH;
+  
+  return 0;
 }
 
 void Display::drawUtf8String(const char* utf8Str, uint8_t x, uint8_t y, uint16_t color){
@@ -228,10 +214,4 @@ void Display::drawUtf8String(const char* utf8Str, uint8_t x, uint8_t y, uint16_t
     drawUtf8Char(unicode, cur_x, y, color);
     cur_x += 16;
   }
-  
-
-
-
-  
-
 }

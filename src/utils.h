@@ -41,4 +41,6 @@
 void copyDateTime(Ds1302::DateTime* src, Ds1302::DateTime* dst);
 void castTimeToSting(Ds1302::DateTime* time, char* dst);
 
+uint16_t binarySerch(const uint16_t* arr, uint16_t size, uint16_t target);
+
 #endif

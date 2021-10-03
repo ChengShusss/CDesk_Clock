@@ -37,6 +37,8 @@ public:
     void println(int x, int y, char* text);
     void println(int x, int y, char* text, uint16_t color, uint8_t size);
 
+    void drawBitmap(int x, int y, int w, int h, uint8_t* img, uint16_t color);
+
     void clean(void);
     void showInitBar(int Percent);
 
@@ -45,14 +47,14 @@ public:
     void drawTime(Ds1302::DateTime* before, Ds1302::DateTime* now);
     void drawTime(Ds1302::DateTime* now);
 
-    void drawFrame(void);
+    // void drawFrame(void);
 
-    void drawMenuItem(char ** menuItems, unsigned char n, unsigned char selected);
+    void drawMenuItem(const char* menuItems, unsigned char n, bool isTyping);
     
-    void drawWifiStatus(char* status);
+    void drawWifiStatus(const char* status);
 
     
-    void openFontFile(void);
+    // void openFontFile(void);
     int drawUtf8Char(uint16_t uni, uint8_t x, uint8_t y, uint16_t color);
 
     void drawUtf8String(const char* utf8Str, uint8_t x, uint8_t y, uint16_t color);
@@ -60,7 +62,7 @@ public:
     // For 1.44" and 1.8" TFT with ST7735 use:
     Adafruit_ST7735 tft;
 
-    File*  fontFile;
+    // File*  fontFile;
 
 };
 
