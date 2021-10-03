@@ -7,7 +7,11 @@
 #include <WebServer.h>
 #include <ESPmDNS.h>
 #include <esp_wifi.h>
+#include <Ds1302.h>
+#include "clock.h"
 
+// Real time Service Host
+#define TIME_HOST "http://www.beijing-time.org/t/time.asp"
 
 
 class Network{
@@ -28,12 +32,11 @@ public:
 
     void wifiConfig(void);
     bool autoConfig(void);
-    void handleClient(void);
-    
-    void setUpHttpClient(char* host);
 
     bool isConnected(void);
     void handleHttpRequest(void);
+
+    bool syncTime(Clock* clk);
 };
 
 

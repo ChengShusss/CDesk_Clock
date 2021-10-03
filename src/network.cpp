@@ -128,19 +128,6 @@ bool Network::autoConfig(void){
     return false;
 }
 
-void Network::handleClient(void){
-    server.handleClient();
-}
-
-void Network::setUpHttpClient(char* host)
-{
-  req = (String)host;
-  Serial.println(req);
-  if (http_client.begin(req))
-  {
-    Serial.println("HTTPclient setUp done!");
-  }
-}
 
 bool Network::isConnected(void){
     return WiFi.isConnected();
@@ -149,4 +136,45 @@ bool Network::isConnected(void){
 
 void Network::handleHttpRequest(void){
     server.handleClient();
+}
+
+
+bool Network::syncTime(Clock* clk){
+  HTTPClient http; // 声明HTTPClient对象
+  uint8_t dt[] = {0, 0, 0, 0, 0, 0, 0};
+  uint8_t i = 0;
+  uint8_t p = 0;
+  bool flag = false;
+
+  http.begin(TIME_HOST); // 准备启用连接
+  Serial.println("Start to get info.");
+
+  int httpCode = http.GET(); // 发起GET请求
+
+  if (httpCode > 0) // 如果状态码大于0说明请求过程无异常
+  {
+    if (httpCode == HTTP_CODE_OK) // 请求被服务器正常响应，等同于httpCode == 200
+    {
+      String payload = http.getString(); // 读取服务器返回的响应正文数据
+                                         // 如果正文数据很多该方法会占用很大的内存
+      i = 10;
+      while(p <= 6){
+        while (payload[i] < '0' || payload[i] > '9') i++;
+        while (payload[i] >= '0' && payload[i] <= '9'){
+          dt[p] = (dt[p] * 10 + payload[i] - '0' ) % 100;
+          i++;
+        }
+        p++;
+      }
+      clk->setTime(dt[0], dt[1], dt[2], dt[4], dt[5], dt[6], dt[3]);
+      Serial.println("Setting Time Success...");
+      flag = true;
+    }
+  }
+  else
+  {
+    Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
+  }
+  http.end(); // 结束当前连接
+  return flag;
 }

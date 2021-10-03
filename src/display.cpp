@@ -1,6 +1,10 @@
 #include "display.h"
 #include "utils.h"
 #include "libs/Segment720pt7b.h"
+#include <SPIFFS.h>
+#include "libs/fontData.h"
+
+
 
 Display::Display(void):tft(TFT_CS, TFT_DC, TFT_RST){
     this->tft.initR(INITR_GREENTAB);      // Init ST7735S chip, green tab
@@ -49,6 +53,11 @@ void Display::println(int x, int y, char* text, uint16_t color, uint8_t size){
     this->tft.println(text);
 };
 
+
+void Display::drawBitmap(int x, int y, int w, int h, uint8_t* img, uint16_t color){
+  tft.drawBitmap(x, y, img, w, h, color);
+};
+
 void Display::clean(void){
     this->tft.fillScreen(BACKGROUND);
 }
@@ -63,22 +72,49 @@ void Display::showInitBar(int percent){
     this->tft.print("Powered By Shadow");
 }
 
+
+void Display::drawPrompt(void){
+  tft.setCursor(2, 4);
+  tft.setTextSize(1);
+
+  // print user
+  tft.setTextColor(PROMPT_USER_COLOR);
+  tft.print(PROMPT_USER_TEXT);
+  // print @
+  tft.setTextColor(PROMPT_AT_COLOR);
+  tft.print(PROMPT_AT_SYMBOL);
+  // print host
+  tft.setTextColor(PROMPT_HOST_COLOR);
+  tft.print(PROMPT_HOST_TEXT);
+
+  // print prompt signal
+  tft.setCursor(2, 14);
+  // tft.setTextSize(2);
+  tft.setTextColor(PROMPT_MARK_COLOR);
+  tft.print(PROMPT_MARK_TEXT);
+
+  // print prompt split line
+  tft.setCursor(0, 20);
+  // tft.setTextSize(2);
+  tft.setTextColor(LINE_COLOR);
+  tft.print(PROMPT_SPLIT_LINE);
+}
+
 void Display::drawTime(Ds1302::DateTime* before, Ds1302::DateTime* now){
     char time[] = "00:00";
     // set font size
-    // this->tft.setTextSize(4);
 
     tft.setFont(&Segment720pt7b);
 
     // clean before time, avoid flicker.
     this->tft.setTextColor(LINE_COLOR);
-    this->tft.setCursor(6, 46);
+    this->tft.setCursor(6, 64);
     castTimeToSting(before, time);
     this->tft.print("88888");
     
     // print time at tft
     this->tft.setTextColor(TIME_COLOR);
-    this->tft.setCursor(6, 46);
+    this->tft.setCursor(6, 64);
     castTimeToSting(now, time);
     this->tft.print(time);
 
@@ -97,40 +133,85 @@ void Display::drawTime(Ds1302::DateTime* now){
 
     // print time at tft
     this->tft.setTextColor(TIME_COLOR);
-    this->tft.setCursor(6, 20);
+    this->tft.setCursor(6, 28);
     castTimeToSting(now, time);
     this->tft.print(time);
     tft.setFont();
 
 }
 
-void Display::drawFrame(void){
-    // draw horizontal lines
-    this->tft.drawLine(0, 0, 128, 0, LINE_COLOR);
-    this->tft.drawLine(0, 1, 128, 1, LINE_COLOR);
-    this->tft.drawLine(0, 10, 128, 10, LINE_COLOR);
-    this->tft.drawLine(0, 11, 128, 11, LINE_COLOR);
-    this->tft.drawLine(0, 55, 128, 55, LINE_COLOR);
-    this->tft.drawLine(0, 56, 128, 56, LINE_COLOR);
-    this->tft.drawLine(0, 126, 128, 126, LINE_COLOR);
-    this->tft.drawLine(0, 127, 128, 127, LINE_COLOR);
-
-    // draw vertical lines
-    this->tft.drawLine(0, 0, 0, 128, LINE_COLOR);
-    this->tft.drawLine(1, 0, 1, 128, LINE_COLOR);
-    this->tft.drawLine(96, 55, 96, 128, LINE_COLOR);
-    this->tft.drawLine(97, 55, 97, 128, LINE_COLOR);
-    this->tft.drawLine(126, 0, 126, 128, LINE_COLOR);
-    this->tft.drawLine(127, 0, 127, 128, LINE_COLOR);
+void Display::drawMenuItem(const char* menuItems, unsigned char n, bool isTyping){
+  tft.setCursor(20, 14);
+  tft.setTextSize(1);
+  tft.setTextColor(PROMPT_USER_COLOR);
+  tft.print(menuItems);
+  if(!isTyping){
+    tft.setTextColor(BACKGROUND);
+  }
+  tft.print('_');
 }
 
-void Display::drawWifiStatus(char* status){
 
-    this->tft.fillRect(2,0, 128, 8, BACKGROUND);
+void Display::drawWifiStatus(const char* status){
+
+    this->tft.fillRect(2,120, 128, 8, BACKGROUND);
     // set font size
     this->tft.setTextSize(1);
     // print time at tft
     this->tft.setTextColor(TIME_COLOR);
-    this->tft.setCursor(2, 2);
+    this->tft.setCursor(2, 120);
     this->tft.print(status);
+}
+
+// void Display::openFontFile(void){
+//   static File f = SPIFFS.open(FONT_FILE);
+//   fontFile = &f;
+// }
+
+int Display::drawUtf8Char(uint16_t uni, uint8_t x, uint8_t y, uint16_t color){
+  uint16_t offset = binarySerch(indexTable, 3606, uni);
+  if (offset == 65535){
+    tft.drawBitmap(x, y, unFind, 16, 15, color);
+  } else{
+    tft.drawBitmap(x, y, fontData + (offset * 30), 16, 15, color);
+  }
+  
+  return 0;
+}
+
+void Display::drawUtf8String(const char* utf8Str, uint8_t x, uint8_t y, uint16_t color){
+  uint8_t cur_x = x;
+  uint8_t p = 0;
+  uint16_t unicode = 0;
+  while (*(utf8Str + p)){
+    unicode = 0;
+    uint8_t byte1 = *(utf8Str + p);
+    p++;
+    if ((byte1 & 0x80) == 0) {
+      unicode = byte1;
+    } else {
+      uint8_t byte2 = *(utf8Str + p);
+      p++;
+      if (byte2 == 0) {
+        break;
+      }
+      if ((byte1 & 0xE0) == 0xC0) {
+        unicode = ((byte1 & 0x1F) << 6) | (byte2 & 0x3F);
+      } else {
+        uint8_t byte3 = *(utf8Str + p);
+        p++;
+        if (byte3 == 0) {
+          break;
+        }
+        if ((byte1 & 0xf0) == 0xE0) {
+          unicode =
+              ((byte1 & 0x0F) << 12) | ((byte2 & 0x3F) << 6) | (byte3 & 0x3F);
+        } else {
+          break;
+        }
+      }
+    }
+    drawUtf8Char(unicode, cur_x, y, color);
+    cur_x += 16;
+  }
 }
