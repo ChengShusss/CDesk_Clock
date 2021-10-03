@@ -32,7 +32,7 @@
 #define PROMPT_USER_TEXT "Shadow"
 #define PROMPT_AT_SYMBOL " @ "
 #define PROMPT_HOST_TEXT "esp32"
-#define PROMPT_MARK_TEXT "$ >"
+#define PROMPT_MARK_TEXT "$> "
 #define PROMPT_SPLIT_LINE "- - - - - - - - - - - - -"
 
 

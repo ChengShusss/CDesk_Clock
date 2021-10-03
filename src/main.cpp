@@ -30,7 +30,7 @@ String rsp;
 
 unsigned char rocker_state = 0;
 const static char* Menuitems[] ={
-    "Normal",
+    "date_time",
     "Time Set",
     "Wifi Set",
     "About",
@@ -38,6 +38,11 @@ const static char* Menuitems[] ={
     "Manual Set",
     "Connect",
     "Reset"
+};
+
+const static char* WifiStatus[]= {
+  "Offline",
+  "Connected"
 };
 
 KEY_TABLE menuTable[] = {
@@ -120,6 +125,7 @@ void setup()
     display.drawPrompt();
     state = DATETIME;
     updateMenu();
+    updateWifiStatus(true);
 }
 
 
@@ -154,7 +160,7 @@ void loop()
       if (state == DATETIME && before.minute != now.minute){
         printTime();
       }
-      updateWifiStatus();
+      updateWifiStatus(false);
       copyDateTime(&now, &before);
 
       display.tft.fillRect(6, 88, 124, 16, BACKGROUND);
@@ -197,13 +203,18 @@ void updateMenu(void){
   isMenuTyping = !isMenuTyping;
 }
 
-void updateWifiStatus(void){
+void updateWifiStatus(bool force){
+  if (force){
+    isConnected = network->isConnected();
+    display.drawWifiStatus(WifiStatus[isConnected]);
+    return;
+  }
   if (!isConnected && network->isConnected()){
-    display.drawWifiStatus("Connected");
+    display.drawWifiStatus(WifiStatus[1]);
     isConnected = true;
   }
   else if(isConnected && !network->isConnected()){
-    display.drawWifiStatus("Offline");
+    display.drawWifiStatus(WifiStatus[0]);
     isConnected = false;
   }
 }
