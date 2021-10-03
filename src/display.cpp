@@ -100,13 +100,13 @@ void Display::drawTime(Ds1302::DateTime* before, Ds1302::DateTime* now){
 
     // clean before time, avoid flicker.
     this->tft.setTextColor(LINE_COLOR);
-    this->tft.setCursor(6, 46);
+    this->tft.setCursor(6, 64);
     castTimeToSting(before, time);
     this->tft.print("88888");
     
     // print time at tft
     this->tft.setTextColor(TIME_COLOR);
-    this->tft.setCursor(6, 46);
+    this->tft.setCursor(6, 64);
     castTimeToSting(now, time);
     this->tft.print(time);
 
@@ -125,7 +125,7 @@ void Display::drawTime(Ds1302::DateTime* now){
 
     // print time at tft
     this->tft.setTextColor(TIME_COLOR);
-    this->tft.setCursor(6, 20);
+    this->tft.setCursor(6, 28);
     castTimeToSting(now, time);
     this->tft.print(time);
     tft.setFont();
@@ -154,12 +154,12 @@ void Display::drawFrame(void){
 
 void Display::drawWifiStatus(char* status){
 
-    this->tft.fillRect(2,0, 128, 8, BACKGROUND);
+    this->tft.fillRect(2,120, 128, 8, BACKGROUND);
     // set font size
     this->tft.setTextSize(1);
     // print time at tft
     this->tft.setTextColor(TIME_COLOR);
-    this->tft.setCursor(2, 2);
+    this->tft.setCursor(2, 120);
     this->tft.print(status);
 }
 
