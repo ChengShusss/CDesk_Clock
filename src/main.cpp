@@ -170,6 +170,7 @@ void loop()
       updateMenu();
       // printInfo();
       updateWeather();
+      network->getWeather();
     }
 
 }

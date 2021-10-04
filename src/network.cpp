@@ -174,3 +174,30 @@ bool Network::syncTime(Clock* clk){
   http.end(); // 结束当前连接
   return flag;
 }
+
+
+bool Network::getWeather(void){
+  HTTPClient http; // 声明HTTPClient对象
+  bool flag = false;
+
+  http.begin(WEATHER_HOST); // 准备启用连接
+  Serial.println("Start to get Weather info.");
+
+  int httpCode = http.GET(); // 发起GET请求
+
+  if (httpCode > 0) // 如果状态码大于0说明请求过程无异常
+  {
+    if (httpCode == HTTP_CODE_OK) // 请求被服务器正常响应，等同于httpCode == 200
+    {
+      String payload = http.getString(); // 读取服务器返回的响应正文数据
+                                         // 如果正文数据很多该方法会占用很大的内存
+      Serial.print(payload);
+    }
+  }
+  else
+  {
+    Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
+  }
+  http.end(); // 结束当前连接
+  return flag;
+}

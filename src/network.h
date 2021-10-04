@@ -12,6 +12,7 @@
 
 // Real time Service Host
 #define TIME_HOST "http://www.beijing-time.org/t/time.asp"
+#define WEATHER_HOST "http://weather.shadowc.ltd/weather/Nanjing"
 
 
 class Network{
@@ -34,6 +35,7 @@ public:
     void handleHttpRequest(void);
 
     bool syncTime(Clock* clk);
+    bool getWeather(void);
 };
 
 

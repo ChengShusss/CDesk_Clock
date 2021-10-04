@@ -4,4 +4,21 @@
 
 #include <Arduino.h>
 
+
+struct Weather {
+    char date[11];
+    uint8_t dayCode;
+    uint8_t nightCode;
+    uint8_t highTemp;
+    uint8_t lowTemp;
+    float rainFall;
+    uint8_t precip;
+    char wind_direction[3];
+    uint8_t windSpeed;
+    uint8_t windRank;
+    uint8_t humidity;
+};
+
+void parseWeather(char* s, Weather* weather);
+
 #endif

@@ -3,12 +3,13 @@ Description: Provide Weather data API
 
 Author: Cheng Shu
 Date: 2021-10-04 20:23:03
-LastEditTime: 2021-10-04 20:42:18
+LastEditTime: 2021-10-04 21:57:37
 LastEditors: Cheng Shu
 @Copyright © 2020 Cheng Shu
 License: MIT License
 """
 
+import time
 from flask import Flask
 import sqlite3
 
@@ -39,7 +40,8 @@ def getWeatherInfo(city):
               ''')
     res = c.fetchone()
     conn.close()
-    if res:
+    date = time.strftime("%Y-%m-%d", time.localtime())
+    if res and res[0][2:12] == date:
         return res[0]
     return "F"
 
