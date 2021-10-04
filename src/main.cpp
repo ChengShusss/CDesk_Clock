@@ -27,6 +27,7 @@ HTTPClient http_client;
 Network* network = new Network();
 String req;
 String rsp;
+uint8_t weatherIndex;
 
 unsigned char rocker_state = 0;
 const static char* Menuitems[] ={
@@ -40,9 +41,9 @@ const static char* Menuitems[] ={
     "Reset"
 };
 
-const static char* WifiStatus[]= {
+const static char* WifiStatusText[] = {
   "Offline",
-  "Connected"
+  "Connect"
 };
 
 KEY_TABLE menuTable[] = {
@@ -126,6 +127,7 @@ void setup()
     state = DATETIME;
     updateMenu();
     updateWifiStatus(true);
+    weatherIndex = 0;
 }
 
 
@@ -169,6 +171,7 @@ void loop()
 
       updateMenu();
       // printInfo();
+      updateWeather();
     }
 }
 
@@ -204,24 +207,15 @@ void updateMenu(void){
 }
 
 void updateWifiStatus(bool force){
-  if (force){
+  if (force | (isConnected != network->isConnected())){
     isConnected = network->isConnected();
-    display.drawWifiStatus(WifiStatus[isConnected]);
-    return;
-  }
-  if (!isConnected && network->isConnected()){
-    display.drawWifiStatus(WifiStatus[1]);
-    isConnected = true;
-  }
-  else if(isConnected && !network->isConnected()){
-    display.drawWifiStatus(WifiStatus[0]);
-    isConnected = false;
+    display.drawWifiStatus(WifiStatusText[isConnected]);
   }
 }
 
 
 void printTime(void){
-    display.drawTime(&before, &now);
+    display.drawTime(&now);
 }
 
 void testSync(void){
@@ -231,4 +225,9 @@ void testSync(void){
 
 void webWifiConfig(){
   network->wifiConfig();
+}
+
+void updateWeather(void){
+  display.drawWeater(weatherIndex, true);
+  weatherIndex = (weatherIndex + 1) % 70;
 }

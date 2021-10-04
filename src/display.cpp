@@ -1,8 +1,9 @@
 #include "display.h"
 #include "utils.h"
-#include "libs/Segment720pt7b.h"
 #include <SPIFFS.h>
 #include "libs/fontData.h"
+#include "libs/segment.h"
+#include "libs/weatherIcons.h"
 
 
 
@@ -101,12 +102,17 @@ void Display::drawPrompt(void){
 }
 
 void Display::drawTime(Ds1302::DateTime* before, Ds1302::DateTime* now){
+<<<<<<< HEAD
     char time[] = "00:00";
     char date[] = "2021-10-03";
     // set font size
+=======
+    // char time[] = "00:00";
+    // // set font size
+>>>>>>> dev
 
-    tft.setFont(&Segment720pt7b);
 
+<<<<<<< HEAD
     // clean before time, avoid flicker.
     tft.setTextColor(LINE_COLOR);
     tft.setCursor(6, 64);
@@ -132,24 +138,62 @@ void Display::drawTime(Ds1302::DateTime* before, Ds1302::DateTime* now){
     castDateToString(now, date);
     tft.print(date);
     
+=======
+    // // clean before time, avoid flicker.
+    // this->tft.setTextColor(LINE_COLOR);
+    // this->tft.setCursor(6, 64);
+    // castTimeToSting(before, time);
+    // this->tft.print("88888");
+    
+    // // print time at tft
+    // this->tft.setTextColor(TIME_COLOR);
+    // this->tft.setCursor(6, 64);
+    // castTimeToSting(now, time);
+    // this->tft.print(time);
+
+    // tft.setFont();
+>>>>>>> dev
     
 
 }
 
 
 void Display::drawTime(Ds1302::DateTime* now){
+<<<<<<< HEAD
     char time[] = "00:00";
     // set font size
     tft.setTextSize(4);
+=======
+>>>>>>> dev
 
-    tft.setFont(&Segment720pt7b);
+    uint16_t offset;
 
+<<<<<<< HEAD
     // print time at tft
     tft.setTextColor(TIME_COLOR);
     tft.setCursor(6, 28);
     castTimeToString(now, time);
     tft.print(time);
     tft.setFont();
+=======
+    // Draw background
+    tft.drawBitmap(6, 28, segmentFontData + 960, 24, 40, LINE_COLOR);
+    tft.drawBitmap(30, 28, segmentFontData + 960, 24, 40, LINE_COLOR);
+    tft.drawBitmap(66, 28, segmentFontData + 960, 24, 40, LINE_COLOR);
+    tft.drawBitmap(90, 28, segmentFontData + 960, 24, 40, LINE_COLOR);
+
+
+    offset = segmentIndexTable[now->hour / 10];
+    // Draw Hours
+    tft.drawBitmap(6, 28, segmentFontData + offset, 24, 40, TIME_COLOR);
+    offset = segmentIndexTable[now->hour % 10];
+    tft.drawBitmap(30, 28, segmentFontData + offset, 24, 40, TIME_COLOR);
+    // Draw Minutes
+    offset = segmentIndexTable[now->minute / 10];
+    tft.drawBitmap(66, 28, segmentFontData + offset, 24, 40, TIME_COLOR);
+    offset = segmentIndexTable[now->minute % 10];
+    tft.drawBitmap(90, 28, segmentFontData + offset, 24, 40, TIME_COLOR);
+>>>>>>> dev
 
 }
 
@@ -174,6 +218,11 @@ void Display::drawWifiStatus(const char* status){
     tft.setTextColor(TIME_COLOR);
     tft.setCursor(2, 120);
     tft.print(status);
+}
+
+void Display::drawWeater(uint8_t index, bool isDay){
+  tft.fillRect(2, 80, 32, 32, BACKGROUND);
+  tft.drawBitmap(2, 80, weatherIcons + index * 128, 32, 32, TIME_COLOR);
 }
 
 // void Display::openFontFile(void){

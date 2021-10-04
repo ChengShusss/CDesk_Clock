@@ -53,6 +53,8 @@ public:
     
     void drawWifiStatus(const char* status);
 
+    void drawWeater(uint8_t index, bool isDay);
+
     
     // void openFontFile(void);
     int drawUtf8Char(uint16_t uni, uint8_t x, uint8_t y, uint16_t color);
