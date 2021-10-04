@@ -102,43 +102,10 @@ void Display::drawPrompt(void){
 }
 
 void Display::drawTime(Ds1302::DateTime* before, Ds1302::DateTime* now){
-<<<<<<< HEAD
-    char time[] = "00:00";
-    char date[] = "2021-10-03";
-    // set font size
-=======
     // char time[] = "00:00";
     // // set font size
->>>>>>> dev
 
 
-<<<<<<< HEAD
-    // clean before time, avoid flicker.
-    tft.setTextColor(LINE_COLOR);
-    tft.setCursor(6, 64);
-    tft.print("88888");
-    
-    // print time at tft
-    tft.setTextColor(TIME_COLOR);
-    tft.setCursor(6, 64);
-    castTimeToString(now, time);
-    tft.print(time);
-
-    tft.setFont();
-    tft.setTextSize(1);
-    // clean before date, avoid flicker.
-    tft.setTextColor(BACKGROUND);
-    tft.setCursor(60, 72);
-    castDateToString(before, date);
-    tft.print(date);
-    
-    // print time at tft
-    tft.setTextColor(DATE_COLOR);
-    tft.setCursor(60, 72);
-    castDateToString(now, date);
-    tft.print(date);
-    
-=======
     // // clean before time, avoid flicker.
     // this->tft.setTextColor(LINE_COLOR);
     // this->tft.setCursor(6, 64);
@@ -152,30 +119,15 @@ void Display::drawTime(Ds1302::DateTime* before, Ds1302::DateTime* now){
     // this->tft.print(time);
 
     // tft.setFont();
->>>>>>> dev
     
 
 }
 
 
 void Display::drawTime(Ds1302::DateTime* now){
-<<<<<<< HEAD
-    char time[] = "00:00";
-    // set font size
-    tft.setTextSize(4);
-=======
->>>>>>> dev
 
     uint16_t offset;
 
-<<<<<<< HEAD
-    // print time at tft
-    tft.setTextColor(TIME_COLOR);
-    tft.setCursor(6, 28);
-    castTimeToString(now, time);
-    tft.print(time);
-    tft.setFont();
-=======
     // Draw background
     tft.drawBitmap(6, 28, segmentFontData + 960, 24, 40, LINE_COLOR);
     tft.drawBitmap(30, 28, segmentFontData + 960, 24, 40, LINE_COLOR);
@@ -193,7 +145,6 @@ void Display::drawTime(Ds1302::DateTime* now){
     tft.drawBitmap(66, 28, segmentFontData + offset, 24, 40, TIME_COLOR);
     offset = segmentIndexTable[now->minute % 10];
     tft.drawBitmap(90, 28, segmentFontData + offset, 24, 40, TIME_COLOR);
->>>>>>> dev
 
 }
 
