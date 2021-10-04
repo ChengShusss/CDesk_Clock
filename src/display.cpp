@@ -7,7 +7,7 @@
 
 
 Display::Display(void):tft(TFT_CS, TFT_DC, TFT_RST){
-    this->tft.initR(INITR_GREENTAB);      // Init ST7735S chip, green tab
+    tft.initR(INITR_GREENTAB);      // Init ST7735S chip, green tab
     // TODO Need to change the following file: .pio\libdeps\esp32doit-devkit-v1\Adafruit ST7735 and ST7789 Library\Adafruit_ST7735.cpp:223
     //   _colstart = 0;
     //   _rowstart = 32;
@@ -17,40 +17,40 @@ Display::Display(void):tft(TFT_CS, TFT_DC, TFT_RST){
     #endif
 
     // Plot the frame.
-    this->tft.fillScreen(ST77XX_BLUE);
+    tft.fillScreen(ST77XX_BLUE);
       for(int16_t y = 0; y < 4; y++){
-        this->tft.drawLine(0, y, WIDTH, y, ST77XX_WHITE);
+        tft.drawLine(0, y, WIDTH, y, ST77XX_WHITE);
     }
     for(int16_t y = 60; y < 64; y++){
-        this->tft.drawLine(0, y, WIDTH, y, ST77XX_WHITE);
+        tft.drawLine(0, y, WIDTH, y, ST77XX_WHITE);
     }
 
     // Setting
-    this->tft.setTextWrap(false);
+    tft.setTextWrap(false);
 };
 
 void Display::print(int x, int y, char* text){
-    this->tft.setCursor(x, y);
-    this->tft.print(text);
+    tft.setCursor(x, y);
+    tft.print(text);
 };
 
 void Display::print(int x, int y, char* text, uint16_t color, uint8_t size){
-    this->tft.setTextSize(size);
-    this->tft.setTextColor(color);
-    this->tft.setCursor(x, y);
-    this->tft.print(text);
+    tft.setTextSize(size);
+    tft.setTextColor(color);
+    tft.setCursor(x, y);
+    tft.print(text);
 };
 
 void Display::println(int x, int y, char* text){
-    this->tft.setCursor(x, y);
-    this->tft.println(text);
+    tft.setCursor(x, y);
+    tft.println(text);
 };
 
 void Display::println(int x, int y, char* text, uint16_t color, uint8_t size){
-    this->tft.setTextSize(size);
-    this->tft.setTextColor(color);
-    this->tft.setCursor(x, y);
-    this->tft.println(text);
+    tft.setTextSize(size);
+    tft.setTextColor(color);
+    tft.setCursor(x, y);
+    tft.println(text);
 };
 
 
@@ -59,17 +59,17 @@ void Display::drawBitmap(int x, int y, int w, int h, uint8_t* img, uint16_t colo
 };
 
 void Display::clean(void){
-    this->tft.fillScreen(BACKGROUND);
+    tft.fillScreen(BACKGROUND);
 }
 
 void Display::showInitBar(int percent){
-    this->tft.drawRoundRect(14, 60, 102, 8, 3, ST77XX_WHITE);
-    this->tft.fillRoundRect(14 + percent, 61, 100 - percent, 6, 2, BACKGROUND);
-    this->tft.fillRoundRect(14, 61, percent, 6, 2, ST77XX_WHITE);
-    this->tft.setCursor(14, 72);
-    this->tft.setTextColor(ST77XX_WHITE);
-    this->tft.setTextSize(1);
-    this->tft.print("Powered By Shadow");
+    tft.drawRoundRect(14, 60, 102, 8, 3, ST77XX_WHITE);
+    tft.fillRoundRect(14 + percent, 61, 100 - percent, 6, 2, BACKGROUND);
+    tft.fillRoundRect(14, 61, percent, 6, 2, ST77XX_WHITE);
+    tft.setCursor(14, 72);
+    tft.setTextColor(ST77XX_WHITE);
+    tft.setTextSize(1);
+    tft.print("Powered By Shadow");
 }
 
 
@@ -102,23 +102,36 @@ void Display::drawPrompt(void){
 
 void Display::drawTime(Ds1302::DateTime* before, Ds1302::DateTime* now){
     char time[] = "00:00";
+    char date[] = "2021-10-03";
     // set font size
 
     tft.setFont(&Segment720pt7b);
 
     // clean before time, avoid flicker.
-    this->tft.setTextColor(LINE_COLOR);
-    this->tft.setCursor(6, 64);
-    castTimeToSting(before, time);
-    this->tft.print("88888");
+    tft.setTextColor(LINE_COLOR);
+    tft.setCursor(6, 64);
+    tft.print("88888");
     
     // print time at tft
-    this->tft.setTextColor(TIME_COLOR);
-    this->tft.setCursor(6, 64);
-    castTimeToSting(now, time);
-    this->tft.print(time);
+    tft.setTextColor(TIME_COLOR);
+    tft.setCursor(6, 64);
+    castTimeToString(now, time);
+    tft.print(time);
 
     tft.setFont();
+    tft.setTextSize(1);
+    // clean before date, avoid flicker.
+    tft.setTextColor(BACKGROUND);
+    tft.setCursor(60, 72);
+    castDateToString(before, date);
+    tft.print(date);
+    
+    // print time at tft
+    tft.setTextColor(DATE_COLOR);
+    tft.setCursor(60, 72);
+    castDateToString(now, date);
+    tft.print(date);
+    
     
 
 }
@@ -127,15 +140,15 @@ void Display::drawTime(Ds1302::DateTime* before, Ds1302::DateTime* now){
 void Display::drawTime(Ds1302::DateTime* now){
     char time[] = "00:00";
     // set font size
-    this->tft.setTextSize(4);
+    tft.setTextSize(4);
 
     tft.setFont(&Segment720pt7b);
 
     // print time at tft
-    this->tft.setTextColor(TIME_COLOR);
-    this->tft.setCursor(6, 28);
-    castTimeToSting(now, time);
-    this->tft.print(time);
+    tft.setTextColor(TIME_COLOR);
+    tft.setCursor(6, 28);
+    castTimeToString(now, time);
+    tft.print(time);
     tft.setFont();
 
 }
@@ -143,7 +156,7 @@ void Display::drawTime(Ds1302::DateTime* now){
 void Display::drawMenuItem(const char* menuItems, unsigned char n, bool isTyping){
   tft.setCursor(20, 14);
   tft.setTextSize(1);
-  tft.setTextColor(PROMPT_USER_COLOR);
+  tft.setTextColor(PROMPT_COMMAND_COLOR);
   tft.print(menuItems);
   if(!isTyping){
     tft.setTextColor(BACKGROUND);
@@ -154,13 +167,13 @@ void Display::drawMenuItem(const char* menuItems, unsigned char n, bool isTyping
 
 void Display::drawWifiStatus(const char* status){
 
-    this->tft.fillRect(2,120, 128, 8, BACKGROUND);
+    tft.fillRect(2,120, 128, 8, BACKGROUND);
     // set font size
-    this->tft.setTextSize(1);
+    tft.setTextSize(1);
     // print time at tft
-    this->tft.setTextColor(TIME_COLOR);
-    this->tft.setCursor(2, 120);
-    this->tft.print(status);
+    tft.setTextColor(TIME_COLOR);
+    tft.setCursor(2, 120);
+    tft.print(status);
 }
 
 // void Display::openFontFile(void){

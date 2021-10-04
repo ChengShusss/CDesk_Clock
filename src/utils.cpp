@@ -12,13 +12,27 @@ void copyDateTime(Ds1302::DateTime* src, Ds1302::DateTime* dst){
 }
 
 
-void castTimeToSting(Ds1302::DateTime* time, char* dst){
+void castTimeToString(Ds1302::DateTime* time, char* dst){
     dst[0] = time->hour / 10 + '0';
     dst[1] = time->hour % 10 + '0';
     dst[2] = ':';
     dst[3] = time->minute / 10 + '0';
     dst[4] = time->minute % 10 + '0';
     dst[5] = '\0';
+}
+
+void castDateToString(Ds1302::DateTime* dt, char* dst){
+    dst[0] = '2';
+    dst[1] = '0';
+    dst[2] = dt->year / 10 + '0';
+    dst[3] = dt->year % 10 + '0';
+    dst[4] = '-';
+    dst[5] = dt->month / 10 + '0';
+    dst[6] = dt->month % 10 + '0';
+    dst[7] = '-';
+    dst[8] = dt->day / 10 + '0';
+    dst[9] = dt->day % 10 + '0';
+    dst[10] = '\0';
 }
 
 
