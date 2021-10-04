@@ -3,6 +3,7 @@
 #include <SPIFFS.h>
 #include "libs/fontData.h"
 #include "libs/segment.h"
+#include "libs/weatherIcons.h"
 
 
 
@@ -168,6 +169,11 @@ void Display::drawWifiStatus(const char* status){
     this->tft.setTextColor(TIME_COLOR);
     this->tft.setCursor(2, 120);
     this->tft.print(status);
+}
+
+void Display::drawWeater(uint8_t index, bool isDay){
+  tft.fillRect(2, 80, 32, 32, BACKGROUND);
+  tft.drawBitmap(2, 80, weatherIcons + index * 128, 32, 32, TIME_COLOR);
 }
 
 // void Display::openFontFile(void){

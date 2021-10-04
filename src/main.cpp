@@ -27,6 +27,7 @@ HTTPClient http_client;
 Network* network = new Network();
 String req;
 String rsp;
+uint8_t weatherIndex;
 
 unsigned char rocker_state = 0;
 const static char* Menuitems[] ={
@@ -126,6 +127,7 @@ void setup()
     state = DATETIME;
     updateMenu();
     updateWifiStatus(true);
+    weatherIndex = 0;
 }
 
 
@@ -167,6 +169,7 @@ void loop()
 
       updateMenu();
       // printInfo();
+      updateWeather();
     }
 
 }
@@ -221,4 +224,9 @@ void testSync(void){
 
 void webWifiConfig(){
   network->wifiConfig();
+}
+
+void updateWeather(void){
+  display.drawWeater(weatherIndex, true);
+  weatherIndex = (weatherIndex + 1) % 70;
 }
