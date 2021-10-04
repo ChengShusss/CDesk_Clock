@@ -40,6 +40,11 @@ const static char* Menuitems[] ={
     "Reset"
 };
 
+const static char* WifiStatusText[] = {
+  "Offline",
+  "Connect"
+};
+
 KEY_TABLE menuTable[] = {
     {0, 0, 0, 1, 1, (*printTime)}, // 0:normal
     {3, 2, 0, 4, 4, (*printTime)}, // 1:time set
@@ -120,6 +125,7 @@ void setup()
     display.drawPrompt();
     state = DATETIME;
     updateMenu();
+    updateWifiStatus(true);
 }
 
 
@@ -152,7 +158,7 @@ void loop()
       if (state == DATETIME && before.minute != now.minute){
         printTime();
       }
-      updateWifiStatus();
+      updateWifiStatus(false);
       copyDateTime(&now, &before);
 
       display.tft.fillRect(6, 88, 124, 16, BACKGROUND);
@@ -196,20 +202,16 @@ void updateMenu(void){
   isMenuTyping = !isMenuTyping;
 }
 
-void updateWifiStatus(void){
-  if (!isConnected && network->isConnected()){
-    display.drawWifiStatus("Connected");
-    isConnected = true;
-  }
-  else if(isConnected && !network->isConnected()){
-    display.drawWifiStatus("Offline");
-    isConnected = false;
+void updateWifiStatus(bool force){
+  if (force | (isConnected != network->isConnected())){
+    isConnected = network->isConnected();
+    display.drawWifiStatus(WifiStatusText[isConnected]);
   }
 }
 
 
 void printTime(void){
-    display.drawTime(&before, &now);
+    display.drawTime(&now);
 }
 
 void testSync(void){

@@ -1,8 +1,8 @@
 #include "display.h"
 #include "utils.h"
-#include "libs/Segment720pt7b.h"
 #include <SPIFFS.h>
 #include "libs/fontData.h"
+#include "libs/segment.h"
 
 
 
@@ -101,42 +101,49 @@ void Display::drawPrompt(void){
 }
 
 void Display::drawTime(Ds1302::DateTime* before, Ds1302::DateTime* now){
-    char time[] = "00:00";
-    // set font size
+    // char time[] = "00:00";
+    // // set font size
 
-    tft.setFont(&Segment720pt7b);
 
-    // clean before time, avoid flicker.
-    this->tft.setTextColor(LINE_COLOR);
-    this->tft.setCursor(6, 64);
-    castTimeToSting(before, time);
-    this->tft.print("88888");
+    // // clean before time, avoid flicker.
+    // this->tft.setTextColor(LINE_COLOR);
+    // this->tft.setCursor(6, 64);
+    // castTimeToSting(before, time);
+    // this->tft.print("88888");
     
-    // print time at tft
-    this->tft.setTextColor(TIME_COLOR);
-    this->tft.setCursor(6, 64);
-    castTimeToSting(now, time);
-    this->tft.print(time);
+    // // print time at tft
+    // this->tft.setTextColor(TIME_COLOR);
+    // this->tft.setCursor(6, 64);
+    // castTimeToSting(now, time);
+    // this->tft.print(time);
 
-    tft.setFont();
+    // tft.setFont();
     
 
 }
 
 
 void Display::drawTime(Ds1302::DateTime* now){
-    char time[] = "00:00";
-    // set font size
-    this->tft.setTextSize(4);
 
-    tft.setFont(&Segment720pt7b);
+    uint16_t offset;
 
-    // print time at tft
-    this->tft.setTextColor(TIME_COLOR);
-    this->tft.setCursor(6, 28);
-    castTimeToSting(now, time);
-    this->tft.print(time);
-    tft.setFont();
+    // Draw background
+    tft.drawBitmap(6, 28, segmentFontData + 960, 24, 40, LINE_COLOR);
+    tft.drawBitmap(30, 28, segmentFontData + 960, 24, 40, LINE_COLOR);
+    tft.drawBitmap(66, 28, segmentFontData + 960, 24, 40, LINE_COLOR);
+    tft.drawBitmap(90, 28, segmentFontData + 960, 24, 40, LINE_COLOR);
+
+
+    offset = segmentIndexTable[now->hour / 10];
+    // Draw Hours
+    tft.drawBitmap(6, 28, segmentFontData + offset, 24, 40, TIME_COLOR);
+    offset = segmentIndexTable[now->hour % 10];
+    tft.drawBitmap(30, 28, segmentFontData + offset, 24, 40, TIME_COLOR);
+    // Draw Minutes
+    offset = segmentIndexTable[now->minute / 10];
+    tft.drawBitmap(66, 28, segmentFontData + offset, 24, 40, TIME_COLOR);
+    offset = segmentIndexTable[now->minute % 10];
+    tft.drawBitmap(90, 28, segmentFontData + offset, 24, 40, TIME_COLOR);
 
 }
 

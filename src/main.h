@@ -42,7 +42,7 @@ void printInfo(void);
 
 
 void updateMenu(void);
-void updateWifiStatus(void);
+void updateWifiStatus(bool force);
 void printTime(void);
 
 void testSync(void);
