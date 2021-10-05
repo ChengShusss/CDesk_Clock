@@ -9,6 +9,7 @@
 #include <esp_wifi.h>
 #include <Ds1302.h>
 #include "clock.h"
+#include "weather.h"
 
 // Real time Service Host
 #define TIME_HOST "http://www.beijing-time.org/t/time.asp"
@@ -35,7 +36,7 @@ public:
     void handleHttpRequest(void);
 
     bool syncTime(Clock* clk);
-    bool getWeather(void);
+    bool getWeather(Weather* today);
 };
 
 

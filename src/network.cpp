@@ -176,7 +176,7 @@ bool Network::syncTime(Clock* clk){
 }
 
 
-bool Network::getWeather(void){
+bool Network::getWeather(Weather* today){
   HTTPClient http; // 声明HTTPClient对象
   bool flag = false;
 
@@ -191,7 +191,36 @@ bool Network::getWeather(void){
     {
       String payload = http.getString(); // 读取服务器返回的响应正文数据
                                          // 如果正文数据很多该方法会占用很大的内存
-      Serial.print(payload);
+      Serial.println(payload);
+      if (payload[0] == 'T'){
+          uint8_t offset = parseWeather(&(payload[2]), today);
+          Serial.println("Format Finished.");
+          Serial.print("daycode: ");
+          Serial.println(today->dayCode);
+          Serial.print("nightCode: ");
+          Serial.println(today->nightCode);
+          Serial.print("highTemp: ");
+          Serial.println(today->highTemp);
+          Serial.print("LowTemp: ");
+          Serial.println(today->lowTemp);
+          Serial.print("rainFall: ");
+          Serial.println(today->rainFall);
+          Serial.print("precip: ");
+          Serial.println(today->precip);
+          Serial.print("windDirection");
+          Serial.println(today->windDirection);
+          Serial.print("WindSpeed: ");
+          Serial.println(today->windSpeed);
+          Serial.print("windRank: ");
+          Serial.println(today->windRank);
+          Serial.print("humidity: ");
+          Serial.println(today->humidity);
+          Serial.print("Next s:");
+          Serial.println(&payload[2+offset]);
+      }
+      else{
+          Serial.println("Return No Weather Date");
+      }
     }
   }
   else

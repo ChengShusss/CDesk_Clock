@@ -8,6 +8,7 @@
 #include "display.h"
 #include "utils.h"
 #include "network.h"
+#include "weather.h"
 
 #define DEBOUNCE_TIME 10 //延时用来过滤不正常的信号，
 
@@ -28,6 +29,7 @@ Network* network = new Network();
 String req;
 String rsp;
 uint8_t weatherIndex;
+Weather weather;
 
 unsigned char rocker_state = 0;
 const static char* Menuitems[] ={
@@ -163,14 +165,14 @@ void loop()
       updateWifiStatus(false);
       copyDateTime(&now, &before);
 
-      display.tft.fillRect(6, 88, 124, 16, BACKGROUND);
-      // display.drawUtf8Char(0x62c9, 6, 88, ST7735_CYAN);
-      display.drawUtf8String(Notes[0], 6, 88, ST7735_CYAN);
+      // display.tft.fillRect(6, 88, 124, 16, BACKGROUND);
+      // // display.drawUtf8Char(0x62c9, 6, 88, ST7735_CYAN);
+      // display.drawUtf8String(Notes[0], 6, 88, ST7735_CYAN);
 
       updateMenu();
       // printInfo();
-      updateWeather();
-      network->getWeather();
+      // updateWeather();
+      // network->getWeather(&weather);
     }
 
 }
