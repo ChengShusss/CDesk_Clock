@@ -202,6 +202,9 @@ void loop()
 
     clk.getTime(&now);
     if (before.second != now.second){
+      if ((before.minute) != now.minute){
+        updateWeather(false);
+      }
       
       printTimeWeather();
 
