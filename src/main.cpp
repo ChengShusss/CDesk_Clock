@@ -18,7 +18,7 @@ Bounce sw = Bounce();
 
 Ds1302::DateTime before;
 Ds1302::DateTime now;
-int8_t state_t = 0;
+STATE curState = DATETIME;
 int16_t var_x;
 int16_t var_y;
 bool isConnected = false;
@@ -45,13 +45,11 @@ const static char* WeatherInfos[] = {
 
 unsigned char rocker_state = 0;
 const static char* Menuitems[] ={
-    "Normal",
-    "Time Set",
-    "Wifi Set",
-    "About",
-    "Auto Sync",
-    "Manual Set",
-    "Connect",
+    "date time",
+    "set time",
+    "sync time",
+    "sync weather",
+    "set wifi",
     "Reset"
 };
 
@@ -104,14 +102,12 @@ const static char* WeatherTexts[] = {
 };
 
 KEY_TABLE menuTable[] = {
-    {0, 0, 0, 1, 1, (*printTime)}, // 0:normal
-    {3, 2, 0, 4, 4, (*printTime)}, // 1:time set
-    {1, 3, 0, 6, 6, (*printTime)}, // 2:wifi set
-    {2, 1, 0, 3, 3, (*printTime)}, // 3:about
-    {5, 5, 1, 4, 4, (*testSync)}, // 4:auto sync
-    {4, 4, 1, 5, 5, (*printTime)}, // 5:manual set
-    {7, 7, 2, 6, 6, (*webWifiConfig)}, // 6:connect
-    {6, 6, 2, 7, 7, (*printTime)}  // 7:reset
+    {5, 2, 0, 0, 0, (*printTimeWeather)}, // 0:normal
+    {0, 2, 1, 1, 1, (*printTime)}, // 1:set time
+    {1, 3, 2, 2, 2, (*testSync)}, // 2:sync time
+    {2, 4, 3, 3, 3, (*printTime)}, // 3:sync weather
+    {3, 5, 4, 4, 4, (*testSync)}, // 4:set wifi
+    {4, 0, 5, 5, 5, (*printTime)}, // 5:reset
 };
 
 uint8_t noteIndex = 0;
@@ -173,55 +169,43 @@ void setup()
     // display.tft.fillRect(2, 4, 124, 18, BACKGROUND);
     display.drawPrompt();
     state = DATETIME;
-    updateMenu();
+    updateMenu(true);
     updateWifiStatus(true);
+
     weatherIndex = 0;
+    updateWeather(true);
 }
 
 
 void loop()
 {
     network->handleHttpRequest();
-    // get the current time
 
     // Rocker update
     sw.update();
     rocker_state = scanRocker();
     if (rocker_state != 255){
-        // state = menuJump[state][rocker_state];
         switch (rocker_state)
         {
-          case 0: state_t = menuTable[state_t].up; break;
-          case 1: state_t = menuTable[state_t].down; break;
-          case 2: state_t = menuTable[state_t].left; break;
-          case 3: state_t = menuTable[state_t].right; break;
+          case 0: state = (STATE)menuTable[state].up; break;
+          case 1: state = (STATE)menuTable[state].down; break;
+          case 2: state = (STATE)menuTable[state].left; break;
+          case 3: state = (STATE)menuTable[state].right; break;
         }
-        // printMenu();
+        updateMenu(true);
     }
     if(sw.fell()){
-        state_t = menuTable[state_t].sw;
-        (*menuTable[state_t].operation)();
+        curState = (STATE)menuTable[state].sw;
+        (*menuTable[state].operation)();
     }
 
     clk.getTime(&now);
     if (before.second != now.second){
-      if (state == DATETIME && before.minute != now.minute){
-        printTime();
-      }
+      
+      printTimeWeather();
+
       updateWifiStatus(false);
       copyDateTime(&now, &before);
-
-      // display.tft.fillRect(6, 88, 124, 16, BACKGROUND);
-      // // display.drawUtf8Char(0x62c9, 6, 88, ST7735_CYAN);
-      // display.drawUtf8String(Notes[0], 6, 88, ST7735_CYAN);
-
-      updateMenu();
-      // printInfo();
-      // updateWeather();
-      updateWeather();
-      displayWeather();
-      
-      weatherDisplay += 1;
     }
 
 }
@@ -252,8 +236,8 @@ void printInfo(void){
     #endif
 }
 
-void updateMenu(void){
-  display.drawMenuItem(Menuitems[state], 0, isMenuTyping);
+void updateMenu(bool refresh){
+  display.drawMenuItem(Menuitems[state], 0, isMenuTyping, refresh);
   isMenuTyping = !isMenuTyping;
 }
 
@@ -270,7 +254,20 @@ void printTime(void){
 }
 
 void testSync(void){
-  network->syncTime(&clk);
+  bool res = network->syncTime(&clk);
+  display.tft.fillRect(30, 56, 68, 20, ST7735_YELLOW);
+  display.tft.setCursor(32, 60);
+  display.tft.setTextColor(ST7735_BLACK);
+  if(res){
+    display.tft.print("Success");
+  }else{
+    display.tft.print("Failed");
+  }
+  delay(3000);
+  initScreen();
+  displayWeather();
+  printTime();
+  updateWifiStatus(true);
 }
 
 
@@ -290,15 +287,45 @@ void displayWeather(void){
       WeatherTexts);
     cur_opt = weatherDisplay >> 2;
   }
+  weatherDisplay++;
 }
 
-void updateWeather(void){
-  if (updateWeatherCount >= updateWeatherGap){
+void updateWeather(bool force){
+  if (force | (updateWeatherCount >= updateWeatherGap)){
     network->getWeather(&todayWeather, &tomorrowWeather);
-    // printWeather(&todayWeather);
     updateWeatherCount = 0;
   }else{
     updateWeatherCount += 1;
   }
-  
+}
+
+
+void initScreen(void){
+  display.clean();
+  display.drawPrompt();
+  updateMenu(true);
+}
+
+void printTimeWeather(){
+    if ((state == DATETIME && before.minute != now.minute)){
+        printTime();
+    }
+    updateMenu(false);
+    displayWeather();
+}
+
+void setTime(){
+
+}
+void syncTime(){
+
+}
+void syncWeather(){
+
+}
+void setWifi(){
+
+}
+void reset(){
+
 }

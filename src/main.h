@@ -29,8 +29,11 @@ typedef struct
 // 定义状态的枚举
 enum STATE{
   DATETIME,
+  SET_TIME,
   SYNC_TIME,
-  CONFIG,
+  SYNC_WEATHER,
+  SET_WIFI,
+  RESET
 } state;
 
 
@@ -44,7 +47,7 @@ unsigned char scanRocker(void);
 void printInfo(void);
 
 
-void updateMenu(void);
+void updateMenu(bool refresh);
 void updateWifiStatus(bool force);
 void printTime(void);
 
@@ -53,7 +56,17 @@ void testSync(void);
 void webWifiConfig();
 
 void displayWeather(void);
-void updateWeather(void);
+void updateWeather(bool force);
+
+void initScreen(void);
+
+
+void printTimeWeather(void);
+void setTime();
+void syncTime();
+void syncWeather();
+void setWifi();
+void reset();
 
 
 #endif

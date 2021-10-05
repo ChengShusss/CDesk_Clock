@@ -57,7 +57,7 @@ public:
 
     // void drawFrame(void);
 
-    void drawMenuItem(const char* menuItems, unsigned char n, bool isTyping);
+    void drawMenuItem(const char* menuItems, unsigned char n, bool isTyping, bool refresh);
     
     void drawWifiStatus(const char* status);
 

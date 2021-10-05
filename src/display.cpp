@@ -17,15 +17,6 @@ Display::Display(void):tft(TFT_CS, TFT_DC, TFT_RST){
         Serial.println(F("Initialized"));
     #endif
 
-    // Plot the frame.
-    this->tft.fillScreen(ST77XX_BLUE);
-      for(int16_t y = 0; y < 4; y++){
-        this->tft.drawLine(0, y, WIDTH, y, ST77XX_WHITE);
-    }
-    for(int16_t y = 60; y < 64; y++){
-        this->tft.drawLine(0, y, WIDTH, y, ST77XX_WHITE);
-    }
-
     // Setting
     this->tft.setTextWrap(false);
 };
@@ -146,9 +137,32 @@ void Display::drawTime(Ds1302::DateTime* now){
     offset = segmentIndexTable[now->minute % 10];
     tft.drawBitmap(TIME_TEXT_LEFT + 84, TIME_TEXT_UP, segmentFontData + offset, 24, 40, TIME_COLOR);
 
+    // Print Date
+    tft.setTextColor(DATE_COLOR);
+    tft.setCursor(64, TIME_TEXT_UP + 42);
+    tft.setTextSize(1);
+    tft.print("20");
+    if (now->year < 10){
+      tft.print('0');
+    }
+    tft.print(now->year);
+    tft.print('-');
+    if (now->month < 10){
+      tft.print('0');
+    }
+    tft.print(now->month);
+    tft.print('-');
+    if (now->day < 10){
+      tft.print('0');
+    }
+    tft.print(now->day);
+
 }
 
-void Display::drawMenuItem(const char* menuItems, unsigned char n, bool isTyping){
+void Display::drawMenuItem(const char* menuItems, unsigned char n, bool isTyping, bool refresh){
+  if (refresh){
+    tft.fillRect(20, 14, 108, 8, BACKGROUND);
+  }
   tft.setCursor(20, 14);
   tft.setTextSize(1);
   tft.setTextColor(PROMPT_USER_COLOR);
@@ -263,7 +277,7 @@ void Display::drawWeather(
       offset = weatherIndex[code] * 128;
     }
     // draw Icon
-    tft.drawBitmap(94, WEATHER_TEXT_UP + 10, weatherIcons + offset, 32, 32, TIME_COLOR);
+    tft.drawBitmap(94, WEATHER_TEXT_UP + 5, weatherIcons + offset, 32, 32, TIME_COLOR);
 
     // Display detail info
     tft.setTextSize(1);
