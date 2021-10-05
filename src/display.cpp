@@ -17,15 +17,6 @@ Display::Display(void):tft(TFT_CS, TFT_DC, TFT_RST){
         Serial.println(F("Initialized"));
     #endif
 
-    // Plot the frame.
-    tft.fillScreen(ST77XX_BLUE);
-      for(int16_t y = 0; y < 4; y++){
-        tft.drawLine(0, y, WIDTH, y, ST77XX_WHITE);
-    }
-    for(int16_t y = 60; y < 64; y++){
-        tft.drawLine(0, y, WIDTH, y, ST77XX_WHITE);
-    }
-
     // Setting
     tft.setTextWrap(false);
 };
@@ -129,26 +120,49 @@ void Display::drawTime(Ds1302::DateTime* now){
     uint16_t offset;
 
     // Draw background
-    tft.drawBitmap(6, 28, segmentFontData + 960, 24, 40, LINE_COLOR);
-    tft.drawBitmap(30, 28, segmentFontData + 960, 24, 40, LINE_COLOR);
-    tft.drawBitmap(66, 28, segmentFontData + 960, 24, 40, LINE_COLOR);
-    tft.drawBitmap(90, 28, segmentFontData + 960, 24, 40, LINE_COLOR);
+    tft.drawBitmap(TIME_TEXT_LEFT, TIME_TEXT_UP, segmentFontData + 960, 24, 40, LINE_COLOR);
+    tft.drawBitmap(TIME_TEXT_LEFT + 24, TIME_TEXT_UP, segmentFontData + 960, 24, 40, LINE_COLOR);
+    tft.drawBitmap(TIME_TEXT_LEFT + 60, TIME_TEXT_UP, segmentFontData + 960, 24, 40, LINE_COLOR);
+    tft.drawBitmap(TIME_TEXT_LEFT + 84, TIME_TEXT_UP, segmentFontData + 960, 24, 40, LINE_COLOR);
 
 
     offset = segmentIndexTable[now->hour / 10];
     // Draw Hours
-    tft.drawBitmap(6, 28, segmentFontData + offset, 24, 40, TIME_COLOR);
+    tft.drawBitmap(TIME_TEXT_LEFT, TIME_TEXT_UP, segmentFontData + offset, 24, 40, TIME_COLOR);
     offset = segmentIndexTable[now->hour % 10];
-    tft.drawBitmap(30, 28, segmentFontData + offset, 24, 40, TIME_COLOR);
+    tft.drawBitmap(TIME_TEXT_LEFT + 24, TIME_TEXT_UP, segmentFontData + offset, 24, 40, TIME_COLOR);
     // Draw Minutes
     offset = segmentIndexTable[now->minute / 10];
-    tft.drawBitmap(66, 28, segmentFontData + offset, 24, 40, TIME_COLOR);
+    tft.drawBitmap(TIME_TEXT_LEFT + 60, TIME_TEXT_UP, segmentFontData + offset, 24, 40, TIME_COLOR);
     offset = segmentIndexTable[now->minute % 10];
-    tft.drawBitmap(90, 28, segmentFontData + offset, 24, 40, TIME_COLOR);
+    tft.drawBitmap(TIME_TEXT_LEFT + 84, TIME_TEXT_UP, segmentFontData + offset, 24, 40, TIME_COLOR);
+
+    // Print Date
+    tft.setTextColor(DATE_COLOR);
+    tft.setCursor(64, TIME_TEXT_UP + 42);
+    tft.setTextSize(1);
+    tft.print("20");
+    if (now->year < 10){
+      tft.print('0');
+    }
+    tft.print(now->year);
+    tft.print('-');
+    if (now->month < 10){
+      tft.print('0');
+    }
+    tft.print(now->month);
+    tft.print('-');
+    if (now->day < 10){
+      tft.print('0');
+    }
+    tft.print(now->day);
 
 }
 
-void Display::drawMenuItem(const char* menuItems, unsigned char n, bool isTyping){
+void Display::drawMenuItem(const char* menuItems, unsigned char n, bool isTyping, bool refresh){
+  if (refresh){
+    tft.fillRect(20, 14, 108, 8, BACKGROUND);
+  }
   tft.setCursor(20, 14);
   tft.setTextSize(1);
   tft.setTextColor(PROMPT_COMMAND_COLOR);
@@ -230,72 +244,85 @@ void Display::drawUtf8String(const char* utf8Str, uint8_t x, uint8_t y, uint16_t
 }
 
 
-void Display::drawWeather(Weather* today, Weather* tomorrow, uint8_t option, const char** header){
-  uint16_t offset;
-  Weather* w;
-  uint8_t code;
+void Display::drawWeather(
+  Weather* today, 
+  Weather* tomorrow, 
+  uint8_t option,
+  const char** header, 
+  const char** text){
+    // =======================================
+    uint16_t offset;
+    Weather* w;
+    uint8_t code;
 
-  // Choose today or tomorrow
-  if (!(option&0x04)){
-    w = today;
-  }else{
-    w = tomorrow;
-  }
+    // Choose today or tomorrow
+    if (!(option&0x04)){
+      w = today;
+    }else{
+      w = tomorrow;
+    }
 
-  // Choose daylight or night
-  if (!(option&0x02)){
-    code = w->dayCode;
-  }else{
-    code = w->nightCode;
-  }
+    // Choose daylight or night
+    if (!(option&0x02)){
+      code = w->dayCode;
+    }else{
+      code = w->nightCode;
+    }
 
-  tft.fillRect(2, 80, 124, 40, BACKGROUND);
+    tft.fillRect(2, WEATHER_TEXT_UP, 124, 50, BACKGROUND);
 
-  if (code > 38){
-    offset = 69 * 128;
-  }else{
-    offset = weatherIndex[code] * 128;
-  }
-  // draw Icon
-  tft.drawBitmap(94, 80, weatherIcons + offset, 32, 32, TIME_COLOR);
+    if (code > 38){
+      offset = 69 * 128;
+    }else{
+      offset = weatherIndex[code] * 128;
+    }
+    // draw Icon
+    tft.drawBitmap(94, WEATHER_TEXT_UP + 5, weatherIcons + offset, 32, 32, TIME_COLOR);
 
-  // Display detail info
-  tft.setTextSize(1);
-  tft.setTextColor(TIME_COLOR);
-  
-  tft.setCursor(WEAHTER_TEXT_LEFT, 80);
-  tft.print(header[option >> 1]);
+    // Display detail info
+    tft.setTextSize(1);
+    tft.setTextColor(TIME_COLOR);
+    
+    tft.setCursor(WEAHTER_TEXT_LEFT, WEATHER_TEXT_UP);
+    tft.print(header[option >> 1]);
+    tft.setCursor(WEAHTER_TEXT_LEFT, WEATHER_TEXT_UP + 10);
+    if (code < 39){
+      tft.print(text[code]);
+    }else{
+      tft.print(text[39]);
+    }
+    
 
-  if (!(option & 0x01)){
-    tft.setCursor(WEAHTER_TEXT_LEFT, 90);
-    tft.print("Temp ");
-    tft.print(w->lowTemp);
-    tft.print('-');
-    tft.print(w->highTemp);
-    tft.print("`C");
-    tft.setCursor(WEAHTER_TEXT_LEFT, 100);
-    tft.print("Rain ");
-    tft.print(w->precip);
-    tft.print("%");
-    tft.setCursor(WEAHTER_TEXT_LEFT, 110);
-    tft.print("     ");
-    tft.print(w->rainFall);
-    tft.print(" mm");
-  }else{
-    tft.setCursor(WEAHTER_TEXT_LEFT, 90);
-    tft.print("Wind rank ");
-    tft.print(w->windRank);
-    tft.print(" ");
-    tft.print(w->windDirection);
+    if (!(option & 0x01)){
+      tft.setCursor(WEAHTER_TEXT_LEFT, WEATHER_TEXT_UP + 20);
+      tft.print("Temp ");
+      tft.print(w->lowTemp);
+      tft.print('-');
+      tft.print(w->highTemp);
+      tft.print("`C");
+      tft.setCursor(WEAHTER_TEXT_LEFT, WEATHER_TEXT_UP + 30);
+      tft.print("Rain ");
+      tft.print(w->precip);
+      tft.print("%");
+      tft.setCursor(WEAHTER_TEXT_LEFT, WEATHER_TEXT_UP + 40);
+      tft.print("     ");
+      tft.print(w->rainFall);
+      tft.print(" mm");
+    }else{
+      tft.setCursor(WEAHTER_TEXT_LEFT, WEATHER_TEXT_UP + 20);
+      tft.print("Wind rank ");
+      tft.print(w->windRank);
+      tft.print(" ");
+      tft.print(w->windDirection);
 
-    tft.setCursor(WEAHTER_TEXT_LEFT, 100);
-    tft.print("  ");
-    tft.print(w->windSpeed);
-    tft.print(" kmph");
-    tft.setCursor(WEAHTER_TEXT_LEFT, 110);
-    tft.print("Humidity ");
-    tft.print(w->humidity);
-    tft.print(" %");
-  }
+      tft.setCursor(WEAHTER_TEXT_LEFT, WEATHER_TEXT_UP + 30);
+      tft.print("  ");
+      tft.print(w->windSpeed);
+      tft.print(" kmph");
+      tft.setCursor(WEAHTER_TEXT_LEFT, WEATHER_TEXT_UP + 40);
+      tft.print("Humidity ");
+      tft.print(w->humidity);
+      tft.print(" %");
+    }
   
 }
