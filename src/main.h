@@ -52,6 +52,7 @@ void testSync(void);
 
 void webWifiConfig();
 
+void displayWeather(void);
 void updateWeather(void);
 
 

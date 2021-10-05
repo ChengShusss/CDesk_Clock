@@ -34,6 +34,14 @@ uint8_t weatherIndex;
 Weather todayWeather;
 Weather tomorrowWeather;
 uint16_t updateWeatherCount = updateWeatherGap;
+uint8_t weatherDisplay = 0;
+
+const static char* WeatherInfos[] = {
+  "Today",
+  "Tonight",
+  "Tomorrow",
+  "Next Night"
+};
 
 unsigned char rocker_state = 0;
 const static char* Menuitems[] ={
@@ -63,22 +71,12 @@ KEY_TABLE menuTable[] = {
     {6, 6, 2, 7, 7, (*printTime)}  // 7:reset
 };
 
-const static char* Notes[] = {
-  "今天不上班程澍",
-  "下班啦",
-};
 uint8_t noteIndex = 0;
 
 const static char testChinese[] = "测试中文";
 unsigned indexChinese = 0;
 
 
-uint8_t img[] = {
-  0x00, 0x00, 0x00, 0x4c, 0x00, 0x42, 0x3f, 0xff,
-  0x20, 0x20, 0x20, 0x20, 0x3f, 0x22, 0x21, 0x24,
-  0x21, 0x24, 0x21, 0x28, 0x22, 0x10, 0x22, 0x11,
-  0x2e, 0x69, 0x40, 0x89, 0x41, 0x06
-};
 
 void setup()
 {
@@ -178,6 +176,9 @@ void loop()
       // printInfo();
       // updateWeather();
       updateWeather();
+      displayWeather();
+      
+      weatherDisplay += 1;
     }
 
 }
@@ -234,11 +235,23 @@ void webWifiConfig(){
   network->wifiConfig();
 }
 
+void displayWeather(void){
+  static uint8_t cur_opt = 128;
+  if( weatherDisplay >> 2 != cur_opt){
+    Serial.print("cur_opt");
+    Serial.println(cur_opt);
+    display.drawWeather(
+      &todayWeather, &tomorrowWeather,
+      (weatherDisplay & 0x1f) >> 2,
+      WeatherInfos);
+    cur_opt = weatherDisplay >> 2;
+  }
+}
+
 void updateWeather(void){
   if (updateWeatherCount >= updateWeatherGap){
     network->getWeather(&todayWeather, &tomorrowWeather);
-    printWeather(&todayWeather);
-    display.drawTodayWeather(&todayWeather, 1);
+    // printWeather(&todayWeather);
     updateWeatherCount = 0;
   }else{
     updateWeatherCount += 1;

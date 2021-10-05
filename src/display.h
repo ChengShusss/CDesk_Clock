@@ -26,6 +26,9 @@
 #define VR_Y 34
 #define VR_X 35
 
+#define WEAHTER_TEXT_LEFT 4
+
+
 
 class Display{
 public:
@@ -62,7 +65,7 @@ public:
 
     void drawUtf8String(const char* utf8Str, uint8_t x, uint8_t y, uint16_t color);
 
-    void drawTodayWeather(Weather* today, uint8_t option);
+    void drawWeather(Weather* today, Weather* tomorrow, uint8_t option, const char** header);
 // private:
     // For 1.44" and 1.8" TFT with ST7735 use:
     Adafruit_ST7735 tft;
