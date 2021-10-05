@@ -8,6 +8,9 @@
 #define DEBUG_CS
 
 
+#define updateWeatherGap 15
+
+
 #define VR_Y 34
 #define VR_X 35
 

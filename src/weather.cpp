@@ -3,7 +3,7 @@
 
 int parseWeather(char* s, Weather* weather){
     float n = 0;
-    uint8_t i = 13;
+    uint8_t i = 11;
     uint8_t p = 0;
     while (p < 10){
         if (p == 6){
@@ -45,4 +45,29 @@ int parseWeather(char* s, Weather* weather){
         p++;
     }
     return i;
+}
+
+
+
+void printWeather(Weather* w){
+    Serial.print("daycode: ");
+    Serial.println(w->dayCode);
+    Serial.print("nightCode: ");
+    Serial.println(w->nightCode);
+    Serial.print("highTemp: ");
+    Serial.println(w->highTemp);
+    Serial.print("LowTemp: ");
+    Serial.println(w->lowTemp);
+    Serial.print("rainFall: ");
+    Serial.println(w->rainFall);
+    Serial.print("precip: ");
+    Serial.println(w->precip);
+    Serial.print("windDirection: ");
+    Serial.println(w->windDirection);
+    Serial.print("WindSpeed: ");
+    Serial.println(w->windSpeed);
+    Serial.print("windRank: ");
+    Serial.println(w->windRank);
+    Serial.print("humidity: ");
+    Serial.println(w->humidity);
 }

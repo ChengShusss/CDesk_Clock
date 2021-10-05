@@ -9,8 +9,8 @@ struct Weather {
     char date[11];
     uint8_t dayCode;
     uint8_t nightCode;
-    uint8_t highTemp;
-    uint8_t lowTemp;
+    int8_t highTemp;
+    int8_t lowTemp;
     float rainFall;
     uint8_t precip;
     char windDirection[3];
@@ -20,5 +20,6 @@ struct Weather {
 };
 
 int parseWeather(char* s, Weather* weather);
+void printWeather(Weather* w);
 
 #endif

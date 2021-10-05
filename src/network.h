@@ -36,7 +36,7 @@ public:
     void handleHttpRequest(void);
 
     bool syncTime(Clock* clk);
-    bool getWeather(Weather* today);
+    bool getWeather(Weather* today, Weather* tomorrow);
 };
 
 

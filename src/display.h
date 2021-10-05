@@ -9,6 +9,7 @@
 #include <Ds1302.h>
 #include "pin.h"
 #include "utils.h"
+#include "weather.h"
 
 // Debug Mode
 #define DEBUG_CS
@@ -60,6 +61,8 @@ public:
     int drawUtf8Char(uint16_t uni, uint8_t x, uint8_t y, uint16_t color);
 
     void drawUtf8String(const char* utf8Str, uint8_t x, uint8_t y, uint16_t color);
+
+    void drawTodayWeather(Weather* today, uint8_t option);
 // private:
     // For 1.44" and 1.8" TFT with ST7735 use:
     Adafruit_ST7735 tft;

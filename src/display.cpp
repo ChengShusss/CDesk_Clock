@@ -228,3 +228,31 @@ void Display::drawUtf8String(const char* utf8Str, uint8_t x, uint8_t y, uint16_t
     cur_x += 16;
   }
 }
+
+
+void Display::drawTodayWeather(Weather* today, uint8_t option){
+  uint16_t offset;
+  if (today->dayCode > 38){
+    offset = 69 * 128;
+  }else{
+    offset = weatherIndex[today->dayCode] * 128;
+  }
+  tft.fillRect(2, 80, 124, 32, BACKGROUND);
+  tft.drawBitmap(2, 80, weatherIcons + offset, 32, 32, TIME_COLOR);
+  tft.setCursor(34, 80);
+  tft.setTextSize(1);
+  tft.setTextColor(TIME_COLOR);
+  tft.print("Temp ");
+  tft.print(today->lowTemp);
+  tft.print('-');
+  tft.print(today->highTemp);
+  tft.print("`C");
+  tft.setCursor(34, 90);
+  tft.print("Rain ");
+  tft.print(today->precip);
+  tft.print("%");
+  tft.setCursor(34, 100);
+  tft.print("     ");
+  tft.print(today->rainFall);
+  tft.print(" mm");
+}

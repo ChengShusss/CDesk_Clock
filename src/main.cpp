@@ -28,8 +28,12 @@ HTTPClient http_client;
 Network* network = new Network();
 String req;
 String rsp;
+
+
 uint8_t weatherIndex;
-Weather weather;
+Weather todayWeather;
+Weather tomorrowWeather;
+uint16_t updateWeatherCount = updateWeatherGap;
 
 unsigned char rocker_state = 0;
 const static char* Menuitems[] ={
@@ -78,10 +82,11 @@ uint8_t img[] = {
 
 void setup()
 {
+  
+    Serial.begin(115200);
     delay(3000);
   
-    SPIFFS.begin();
-    Serial.begin(115200);
+    // SPIFFS.begin();
     display.clean();
 
     sw.attach(PIN_SW, INPUT_PULLUP);
@@ -172,7 +177,7 @@ void loop()
       updateMenu();
       // printInfo();
       // updateWeather();
-      // network->getWeather(&weather);
+      updateWeather();
     }
 
 }
@@ -230,6 +235,13 @@ void webWifiConfig(){
 }
 
 void updateWeather(void){
-  display.drawWeater(weatherIndex, true);
-  weatherIndex = (weatherIndex + 1) % 70;
+  if (updateWeatherCount >= updateWeatherGap){
+    network->getWeather(&todayWeather, &tomorrowWeather);
+    printWeather(&todayWeather);
+    display.drawTodayWeather(&todayWeather, 1);
+    updateWeatherCount = 0;
+  }else{
+    updateWeatherCount += 1;
+  }
+  
 }
