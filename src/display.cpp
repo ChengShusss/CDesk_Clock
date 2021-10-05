@@ -228,3 +228,74 @@ void Display::drawUtf8String(const char* utf8Str, uint8_t x, uint8_t y, uint16_t
     cur_x += 16;
   }
 }
+
+
+void Display::drawWeather(Weather* today, Weather* tomorrow, uint8_t option, const char** header){
+  uint16_t offset;
+  Weather* w;
+  uint8_t code;
+
+  // Choose today or tomorrow
+  if (!(option&0x04)){
+    w = today;
+  }else{
+    w = tomorrow;
+  }
+
+  // Choose daylight or night
+  if (!(option&0x02)){
+    code = w->dayCode;
+  }else{
+    code = w->nightCode;
+  }
+
+  tft.fillRect(2, 80, 124, 40, BACKGROUND);
+
+  if (code > 38){
+    offset = 69 * 128;
+  }else{
+    offset = weatherIndex[code] * 128;
+  }
+  // draw Icon
+  tft.drawBitmap(94, 80, weatherIcons + offset, 32, 32, TIME_COLOR);
+
+  // Display detail info
+  tft.setTextSize(1);
+  tft.setTextColor(TIME_COLOR);
+  
+  tft.setCursor(WEAHTER_TEXT_LEFT, 80);
+  tft.print(header[option >> 1]);
+
+  if (!(option & 0x01)){
+    tft.setCursor(WEAHTER_TEXT_LEFT, 90);
+    tft.print("Temp ");
+    tft.print(w->lowTemp);
+    tft.print('-');
+    tft.print(w->highTemp);
+    tft.print("`C");
+    tft.setCursor(WEAHTER_TEXT_LEFT, 100);
+    tft.print("Rain ");
+    tft.print(w->precip);
+    tft.print("%");
+    tft.setCursor(WEAHTER_TEXT_LEFT, 110);
+    tft.print("     ");
+    tft.print(w->rainFall);
+    tft.print(" mm");
+  }else{
+    tft.setCursor(WEAHTER_TEXT_LEFT, 90);
+    tft.print("Wind rank ");
+    tft.print(w->windRank);
+    tft.print(" ");
+    tft.print(w->windDirection);
+
+    tft.setCursor(WEAHTER_TEXT_LEFT, 100);
+    tft.print("  ");
+    tft.print(w->windSpeed);
+    tft.print(" kmph");
+    tft.setCursor(WEAHTER_TEXT_LEFT, 110);
+    tft.print("Humidity ");
+    tft.print(w->humidity);
+    tft.print(" %");
+  }
+  
+}

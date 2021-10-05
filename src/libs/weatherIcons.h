@@ -1,6 +1,13 @@
 #ifndef WEATHER_ICON_CDC
 #define WEATHER_ICON_CDC
 
+const uint16_t weatherIndex[] PROGMEM = {
+    0, 5, 69, 69, 1, 2, 7, 3, 8, 4,
+    9, 11, 13, 14, 15, 16, 19, 20, 21, 22,
+    35, 38, 31, 32, 33, 34, 49, 48, 50, 51,
+    45, 47, 46, 52, 53, 58, 57, 67, 68, 69
+};
+
 const uint8_t weatherIcons[] PROGMEM = {
     0x00, 0x01, 0x80, 0x00, 0x00, 0x01, 0x80, 0x00, 
     0x00, 0x01, 0x80, 0x00, 0x00, 0x01, 0x80, 0x00, 
