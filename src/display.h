@@ -27,6 +27,10 @@
 #define VR_X 35
 
 #define WEAHTER_TEXT_LEFT 4
+#define WEATHER_TEXT_UP 28
+
+#define TIME_TEXT_LEFT 6
+#define TIME_TEXT_UP 78
 
 
 
@@ -65,7 +69,7 @@ public:
 
     void drawUtf8String(const char* utf8Str, uint8_t x, uint8_t y, uint16_t color);
 
-    void drawWeather(Weather* today, Weather* tomorrow, uint8_t option, const char** header);
+    void drawWeather(Weather* today, Weather* tomorrow, uint8_t option, const char** header, const char** text);
 // private:
     // For 1.44" and 1.8" TFT with ST7735 use:
     Adafruit_ST7735 tft;

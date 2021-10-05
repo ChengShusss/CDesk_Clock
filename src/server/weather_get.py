@@ -3,7 +3,7 @@ Description:
 
 Author: Cheng Shu
 Date: 2021-10-04 15:45:40
-LastEditTime: 2021-10-05 13:37:21
+LastEditTime: 2021-10-05 19:57:26
 LastEditors: Cheng Shu
 @Copyright © 2020 Cheng Shu
 License: MIT License
@@ -211,7 +211,7 @@ def checkall():
 
 
 if __name__ == '__main__':
-    main()
-    # test()
+    # main()
+    test()
     # checkout()
     # checkall()

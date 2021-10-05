@@ -60,6 +60,49 @@ const static char* WifiStatusText[] = {
   "Connect"
 };
 
+const static char* WeatherTexts[] = {
+    "Sunny",
+    "Clear",
+    "Fair",
+    "Fair",
+    "Cloudy",
+    "Few Cloudy",
+    "Few Cloudy",
+    "Most-Cloudy",
+    "Most-Cloudy",
+    "Overcast",
+    "Shower",
+    "Thun-shower",
+    "Thund-Hail",
+    "Light Rain",
+    "Mid-Rain",
+    "Heavy Rain",
+    "Storm",
+    "Heavy Storm",
+    "Severe Storm",
+    "Ice Rain",
+    "Sleet",
+    "Snow Flurry",
+    "Light Snow",
+    "Mid-Snow",
+    "Heavy Snow",
+    "Snowstorm",
+    "Dust",
+    "Sand",
+    "Duststorm",
+    "Sandstorm",
+    "Foggy",
+    "Haze",
+    "Windy",
+    "Blustery",
+    "Hurricane",
+    "Tropi-Storm",
+    "Tornado",
+    "Cold",
+    "Hot",
+    "Unknown"
+};
+
 KEY_TABLE menuTable[] = {
     {0, 0, 0, 1, 1, (*printTime)}, // 0:normal
     {3, 2, 0, 4, 4, (*printTime)}, // 1:time set
@@ -243,7 +286,8 @@ void displayWeather(void){
     display.drawWeather(
       &todayWeather, &tomorrowWeather,
       (weatherDisplay & 0x1f) >> 2,
-      WeatherInfos);
+      WeatherInfos,
+      WeatherTexts);
     cur_opt = weatherDisplay >> 2;
   }
 }
