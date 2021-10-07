@@ -17,6 +17,114 @@
 #define VR_X 35
 
 
+const static char* WeatherInfos[] = {
+  "Today",
+  "Tonight",
+  "Tomorrow",
+  "Next Night"
+};
+
+const static char* Menuitems[] ={
+    "date time",
+    "set time",
+    "sync time",
+    "sync weather",
+    "set wifi",
+    "Reset"
+};
+
+const static char* WifiStatusText[] = {
+  "Offline",
+  "Connect"
+};
+
+const static char* WeatherTexts[] = {
+    "Sunny",
+    "Clear",
+    "Fair",
+    "Fair",
+    "Cloudy",
+    "Few Cloudy",
+    "Few Cloudy",
+    "Most-Cloudy",
+    "Most-Cloudy",
+    "Overcast",
+    "Shower",
+    "Thun-shower",
+    "Thund-Hail",
+    "Light Rain",
+    "Mid-Rain",
+    "Heavy Rain",
+    "Storm",
+    "Heavy Storm",
+    "Severe Storm",
+    "Ice Rain",
+    "Sleet",
+    "Snow Flurry",
+    "Light Snow",
+    "Mid-Snow",
+    "Heavy Snow",
+    "Snowstorm",
+    "Dust",
+    "Sand",
+    "Duststorm",
+    "Sandstorm",
+    "Foggy",
+    "Haze",
+    "Windy",
+    "Blustery",
+    "Hurricane",
+    "Tropi-Storm",
+    "Tornado",
+    "Cold",
+    "Hot",
+    "Unknown"
+};
+
+const static char* WeatherTextsChs[] = {
+    "晴",
+    "晴",
+    "晴",
+    "晴",
+    "多云",
+    "多云",
+    "多云",
+    "多云",
+    "多云",
+    "阴",
+    "阵雨",
+    "雷阵雨",
+    "阵雨冰雹",
+    "小雨",
+    "中雨",
+    "大雨",
+    "暴雨",
+    "大暴雨",
+    "特大暴雨",
+    "冻雨",
+    "雨夹雪",
+    "阵雪",
+    "小雪",
+    "中雪",
+    "大雪",
+    "暴雪",
+    "浮尘",
+    "扬沙",
+    "沙暴",
+    "强沙暴",
+    "雾",
+    "霾",
+    "风",
+    "大风",
+    "飓风",
+    "热带风暴",
+    "龙卷风",
+    "冷",
+    "热",
+    "未知"
+};
+
+
 //多级菜单相关变量, 定义按键结构体
 typedef struct
 {
