@@ -23,11 +23,7 @@ int16_t var_x;
 int16_t var_y;
 bool isConnected = false;
 bool isMenuTyping = true;
-WiFiClient wifi_Client;
-HTTPClient http_client;
 Network* network = new Network();
-String req;
-String rsp;
 
 
 uint8_t weatherIndex;
@@ -102,12 +98,18 @@ const static char* WeatherTexts[] = {
 };
 
 KEY_TABLE menuTable[] = {
-    {5, 2, 0, 0, 0, (*printTimeWeather)}, // 0:normal
-    {0, 2, 1, 1, 1, (*printTime)}, // 1:set time
-    {1, 3, 2, 2, 2, (*testSync)}, // 2:sync time
-    {2, 4, 3, 3, 3, (*printTime)}, // 3:sync weather
-    {3, 5, 4, 4, 4, (*testSync)}, // 4:set wifi
-    {4, 0, 5, 5, 5, (*printTime)}, // 5:reset
+    {3, 1, 0, (*printTimeWeather)}, // 0: Info
+    {0, 2, 1, (*printTime)}, // 1: Sync Info
+    {1, 3, 2, (*testSync)}, // 2: Wifi Config
+    {2, 0, 3, (*printTime)}, // 3: Reset
+};
+
+
+INFO_TABLE infoTable[] = {
+    {2, 1, (*printTimeWeather)}, // 0: Time
+    {0, 2, (*printTime)}, // 1: Weather Today
+    {1, 0, (*testSync)}, // 2: Weather Tomorrow
+    {3, 3, (*printTime)}, // 3:config
 };
 
 uint8_t noteIndex = 0;
@@ -189,8 +191,6 @@ void loop()
         {
           case 0: state = (STATE)menuTable[state].up; break;
           case 1: state = (STATE)menuTable[state].down; break;
-          case 2: state = (STATE)menuTable[state].left; break;
-          case 3: state = (STATE)menuTable[state].right; break;
         }
         updateMenu(true);
     }
@@ -318,18 +318,6 @@ void printTimeWeather(){
     displayWeather();
 }
 
-void setTime(){
-
-}
-void syncTime(){
-
-}
-void syncWeather(){
-
-}
-void setWifi(){
-
-}
 void reset(){
 
 }

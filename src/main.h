@@ -20,11 +20,16 @@ typedef struct
 {
   unsigned char up;
   unsigned char down;
-  unsigned char left;
-  unsigned char right;
   unsigned char sw;
   void (*operation)(void);
 } KEY_TABLE;
+
+typedef struct
+{
+  unsigned char left;
+  unsigned char right;
+  void (*operation)(void);
+} INFO_TABLE;
 
 // 定义状态的枚举
 enum STATE{
@@ -62,10 +67,6 @@ void initScreen(void);
 
 
 void printTimeWeather(void);
-void setTime();
-void syncTime();
-void syncWeather();
-void setWifi();
 void reset();
 
 
