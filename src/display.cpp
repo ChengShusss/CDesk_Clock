@@ -176,7 +176,7 @@ void Display::drawMenuItem(const char* menuItems, unsigned char n, bool isTyping
 
 void Display::drawWifiStatus(const char* status){
 
-    this->tft.fillRect(2,120, 128, 8, BACKGROUND);
+    this->tft.fillRect(2,120, 48, 8, BACKGROUND);
     // set font size
     this->tft.setTextSize(1);
     // print time at tft

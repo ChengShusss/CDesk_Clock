@@ -7,6 +7,8 @@
 // Debug Mode
 #define DEBUG_CS
 
+#define DEBOUNCE_TIME 10 //延时用来过滤不正常的信号，
+
 
 #define updateWeatherGap 15
 
@@ -31,16 +33,20 @@ typedef struct
   void (*operation)(void);
 } INFO_TABLE;
 
-// 定义状态的枚举
-enum STATE{
-  DATETIME,
-  SET_TIME,
-  SYNC_TIME,
-  SYNC_WEATHER,
-  SET_WIFI,
+// Menu State
+enum MENU_STATE{
+  INFO,
+  INFO_SYNC,
+  WIFI_CONFIG,
   RESET
-} state;
+} menuState;
 
+// Info State
+enum INFO_STATE{
+  TIME,
+  TODAY_WEATHER,
+  TOMORROW_WEATHER
+};
 
 void wifi_Config();
 
@@ -68,6 +74,13 @@ void initScreen(void);
 
 void printTimeWeather(void);
 void reset();
+
+void displayInfoMenu(void);
+void syncInfoMenu(void);
+void configWifiMenu(void);
+void resetMenu(void);
+
+void printInfo(bool force);
 
 
 #endif

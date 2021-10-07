@@ -13,7 +13,7 @@ struct Weather {
     int8_t lowTemp;
     float rainFall;
     uint8_t precip;
-    char windDirection[3];
+    char windDirection[5];
     float windSpeed;
     uint8_t windRank;
     uint8_t humidity;
